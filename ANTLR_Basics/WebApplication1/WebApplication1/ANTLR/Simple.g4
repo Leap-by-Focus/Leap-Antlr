@@ -186,5 +186,46 @@ numberList
   ;
 //gehört zur minExpr
 
+minListFunctionStmt
+  : 'var' IDENTIFIER '.' 'Min' '(' IDENTIFIER ')' ';'
+  ;
+
+absFunctionStmt
+  : 'var' IDENTIFIER '.' 'Abs' '(' (NUMBER | IDENTIFIER) ')' ';'
+  ;
+
+sqrtFunctionStmt
+  : 'var' IDENTIFIER '.' 'Sqrt' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
+  ;
+
+roundFunctionStmt
+  : 'var' IDENTIFIER '.' 'Round' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
+  ;
+
+randomFunctionStmt
+  : 'var' IDENTIFIER '.' 'Random' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
+  ;
+
+meanFunctionStmt
+  : 'var' IDENTIFIER '.' 'Mean' '(' IDENTIFIER ')' ';'
+  ;
+
+medianFunctionStmt
+  : 'var' IDENTIFIER '.' 'Median' '(' IDENTIFIER ')' ';'
+  ;
+
+maxFunctionStmt
+  : 'var' IDENTIFIER '.' 'Max' '(' valueList ')' ';'
+  ;
+
+valueList
+  : (NUMBER | IDENTIFIER) (',' (NUMBER | IDENTIFIER))*
+  ;
+//gehört zum maxFunctionStmt
+
+maxFromListStmt
+  : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')' ';'
+  ;
+
 
 //end hinzufügen

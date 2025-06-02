@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\shram\\Desktop\\ANTLR_Basics\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+      "projectUniqueName": "C:\\Users\\shram\\Documents\\GitHub\\Leap-Antlr\\ANTLR_Basics\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
       "projectName": "WebApplication1",
-      "projectPath": "C:\\Users\\shram\\Desktop\\ANTLR_Basics\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+      "projectPath": "C:\\Users\\shram\\Documents\\GitHub\\Leap-Antlr\\ANTLR_Basics\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
       "packagesPath": "C:\\Users\\shram\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\shram\\Desktop\\ANTLR_Basics\\WebApplication1\\WebApplication1\\obj\\",
+      "outputPath": "C:\\Users\\shram\\Documents\\GitHub\\Leap-Antlr\\ANTLR_Basics\\WebApplication1\\WebApplication1\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\shram\\AppData\\Roaming\\NuGet\\NuGet.Config",
