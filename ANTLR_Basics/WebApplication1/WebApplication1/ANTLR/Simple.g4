@@ -2,15 +2,12 @@ grammar Simple;
 
 //lexer -> die mit Kleinbuchstaben -> definieren die Tokens
 //parser -> die mit Großbuchstaben -> definieren die Grammatik
+
 program: line* EOF;
 line: statement | block;
 statement: (assignment | functionCall) ';';
-//ifBlock: 'if' expression block ('else' elseIfBlock)?;
-//elseIfBlock: block | ifBlock;
 block: '{' line* '}'; //Block muss mindestens 1 line haben
-//whileBlock: WHILE expression block ('else' elseIfBlock)?; //null oder 1mal
 assignment: IDENTIFIER '=' expression;
-//WHILE: 'while' | 'until';
 
 functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')'; //nach einem Ausdruck können beliebig viele genommen werden
 expression 
@@ -187,35 +184,35 @@ numberList
 //gehört zur minExpr
 
 minListFunctionStmt
-  : 'var' IDENTIFIER '.' 'Min' '(' IDENTIFIER ')' ';'
+  : 'var' IDENTIFIER '.' 'Min' '(' IDENTIFIER ')'
   ;
 
 absFunctionStmt
-  : 'var' IDENTIFIER '.' 'Abs' '(' (NUMBER | IDENTIFIER) ')' ';'
+  : 'var' IDENTIFIER '.' 'Abs' '(' (NUMBER | IDENTIFIER) ')'
   ;
 
 sqrtFunctionStmt
-  : 'var' IDENTIFIER '.' 'Sqrt' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
+  : 'var' IDENTIFIER '.' 'Sqrt' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
   ;
 
 roundFunctionStmt
-  : 'var' IDENTIFIER '.' 'Round' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
+  : 'var' IDENTIFIER '.' 'Round' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
   ;
 
 randomFunctionStmt
-  : 'var' IDENTIFIER '.' 'Random' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
+  : 'var' IDENTIFIER '.' 'Random' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
   ;
 
 meanFunctionStmt
-  : 'var' IDENTIFIER '.' 'Mean' '(' IDENTIFIER ')' ';'
+  : 'var' IDENTIFIER '.' 'Mean' '(' IDENTIFIER ')'
   ;
 
 medianFunctionStmt
-  : 'var' IDENTIFIER '.' 'Median' '(' IDENTIFIER ')' ';'
+  : 'var' IDENTIFIER '.' 'Median' '(' IDENTIFIER ')'
   ;
 
 maxFunctionStmt
-  : 'var' IDENTIFIER '.' 'Max' '(' valueList ')' ';'
+  : 'var' IDENTIFIER '.' 'Max' '(' valueList ')'
   ;
 
 valueList
@@ -224,8 +221,55 @@ valueList
 //gehört zum maxFunctionStmt
 
 maxFromListStmt
-  : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')' ';'
+  : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')'
   ;
 
+toLowerFunctionStmt
+  : 'var' IDENTIFIER '.' 'ToLower' '(' IDENTIFIER ')'
+  ;
+
+toUpperFunctionStmt
+  : 'var' IDENTIFIER '.' 'ToUpper' '(' IDENTIFIER ')'
+  ;
+
+trimFunctionStmt
+  : 'var' IDENTIFIER '.' 'Trim' '(' IDENTIFIER ')'
+  ;
+
+trimStartFunctionStmt
+  : 'var' IDENTIFIER '.' 'TrimStart' '(' IDENTIFIER ')'
+  ;
+
+trimEndFunctionStmt
+  : 'var' IDENTIFIER '.' 'TrimEnd' '(' IDENTIFIER ')'
+  ;
+
+replaceFunctionStmt
+  : 'var' IDENTIFIER '.' 'Replace' '(' IDENTIFIER ',' STRING ',' STRING ')'
+  ;
+
+splitFunctionStmt
+  : 'var' IDENTIFIER'.' 'Split' '(' IDENTIFIER ',' STRING ')'
+  ;
+
+leftFunctionStmt
+  : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' INTEGER ')'
+  ;
+
+leftRangeFunctionStmt
+  : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' INTEGER ',' INTEGER ')'
+  ;
+
+concatFunctionStmt
+  : 'var' IDENTIFIER '.' 'Concat' '(' IDENTIFIER ',' IDENTIFIER ',' STRING ')'
+  ;
+
+containsFunctionStmt
+  : 'var' IDENTIFIER '.' 'Contains' '(' IDENTIFIER ',' STRING ')'
+  ;
+
+lengthAccess
+  : IDENTIFIER '.' 'Length'
+  ;
 
 //end hinzufügen
