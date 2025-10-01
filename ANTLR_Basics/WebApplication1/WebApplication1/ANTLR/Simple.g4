@@ -1,10 +1,12 @@
 grammar Simple;
 
+
 //lexer -> die mit Kleinbuchstaben -> definieren die Tokens
 //parser -> die mit Großbuchstaben -> definieren die Grammatik
 
 program: line* EOF;
-line: statement | block;
+line: statement | block | forStmt | repeatStmt | loopStmt | whileStmt | untilStmt | asLongStmt | doWhileStmt | repeatAsLongStmt | repeatUntilStmt | doAsLongStmt | writeFileStmt | isNullStmt | existsStmt | sleepStmt | readFileStmt | deleteFileStmt | createFolderStmt | deleteFolderStmt | openFileStmt | minExpr | minListFunctionStmt | absFunctionStmt | sqrtFunctionStmt | roundFunctionStmt | randomFunctionStmt | meanFunctionStmt | medianFunctionStmt | maxFunctionStmt | maxFromListStmt | toLowerFunctionStmt | toUpperFunctionStmt | trimFunctionStmt | trimStartFunctionStmt | trimEndFunctionStmt | replaceFunctionStmt | splitFunctionStmt | leftFunctionStmt | leftRangeFunctionStmt | concatFunctionStmt | containsFunctionStmt | lengthAccess;
+
 statement: (assignment | functionCall) ';';
 block: '{' line* '}'; //Block muss mindestens 1 line haben
 assignment: IDENTIFIER '=' expression;
@@ -271,5 +273,6 @@ containsFunctionStmt
 lengthAccess
   : IDENTIFIER '.' 'Length'
   ;
+
 
 //end hinzufügen
