@@ -164,11 +164,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitProgram(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitProgram(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ProgramContext program() throws RecognitionException {
@@ -349,11 +344,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitLine(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitLine(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -698,11 +688,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitStatement(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitStatement(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StatementContext statement() throws RecognitionException {
@@ -762,11 +747,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitBlock(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitBlock(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final BlockContext block() throws RecognitionException {
@@ -825,11 +805,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitAssignment(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitAssignment(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final AssignmentContext assignment() throws RecognitionException {
@@ -877,11 +852,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitFunctionCall(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitFunctionCall(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -963,11 +933,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitParenthesizedExpression(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitParenthesizedExpression(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class ConstantExpressionContext extends ExpressionContext {
@@ -982,11 +947,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitConstantExpression(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitConstantExpression(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
@@ -1009,11 +969,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitAdditiveExpression(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitAdditiveExpression(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class IdentifierExpressionContext extends ExpressionContext {
@@ -1026,11 +981,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitIdentifierExpression(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitIdentifierExpression(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
@@ -1053,11 +1003,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMultiplicateExpression(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMultiplicateExpression(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class FunctionCallExpressionContext extends ExpressionContext {
@@ -1073,11 +1018,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitFunctionCallExpression(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitFunctionCallExpression(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class NotExpressionContext extends ExpressionContext {
@@ -1092,11 +1032,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitNotExpression(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitNotExpression(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
@@ -1118,11 +1053,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitComparisonExpression(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitComparisonExpression(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1279,11 +1209,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMultiOp(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMultiOp(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MultiOpContext multiOp() throws RecognitionException {
@@ -1330,11 +1255,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitAddOp(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitAddOp(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final AddOpContext addOp() throws RecognitionException {
@@ -1380,11 +1300,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitCompareOp(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitCompareOp(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1443,11 +1358,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitConstant(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitConstant(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ConstantContext constant() throws RecognitionException {
@@ -1504,11 +1414,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitForStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitForStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1583,11 +1488,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitRepeatStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitRepeatStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final RepeatStmtContext repeatStmt() throws RecognitionException {
@@ -1657,11 +1557,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitLoopStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitLoopStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1740,11 +1635,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitWhileStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitWhileStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final WhileStmtContext whileStmt() throws RecognitionException {
@@ -1815,11 +1705,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitExpr(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1923,11 +1808,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitUntilStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitUntilStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final UntilStmtContext untilStmt() throws RecognitionException {
@@ -2005,11 +1885,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitAsLongStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitAsLongStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final AsLongStmtContext asLongStmt() throws RecognitionException {
@@ -2076,11 +1951,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitCustomCompOp(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitCustomCompOp(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CustomCompOpContext customCompOp() throws RecognitionException {
@@ -2141,11 +2011,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitDoWhileStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitDoWhileStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2226,11 +2091,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitRepeatAsLongStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitRepeatAsLongStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final RepeatAsLongStmtContext repeatAsLongStmt() throws RecognitionException {
@@ -2309,11 +2169,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitRepeatUntilStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitRepeatUntilStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2394,11 +2249,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitDoAsLongStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitDoAsLongStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final DoAsLongStmtContext doAsLongStmt() throws RecognitionException {
@@ -2465,11 +2315,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitWriteFileStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitWriteFileStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final WriteFileStmtContext writeFileStmt() throws RecognitionException {
@@ -2522,11 +2367,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitIsNullStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitIsNullStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2581,11 +2421,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitExistsStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitExistsStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2646,11 +2481,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitSleepStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitSleepStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final SleepStmtContext sleepStmt() throws RecognitionException {
@@ -2695,11 +2525,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitReadFileStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitReadFileStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2749,11 +2574,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitDeleteFileStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitDeleteFileStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final DeleteFileStmtContext deleteFileStmt() throws RecognitionException {
@@ -2797,11 +2617,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitCreateFolderStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitCreateFolderStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2847,11 +2662,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitDeleteFolderStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitDeleteFolderStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final DeleteFolderStmtContext deleteFolderStmt() throws RecognitionException {
@@ -2895,11 +2705,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitOpenFileStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitOpenFileStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2957,11 +2762,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMinFunctionCall(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMinFunctionCall(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MinExprContext minExpr() throws RecognitionException {
@@ -3013,11 +2813,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitNumberList(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitNumberList(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3077,11 +2872,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMinListFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMinListFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MinListFunctionStmtContext minListFunctionStmt() throws RecognitionException {
@@ -3135,11 +2925,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitAbsFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitAbsFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3206,11 +2991,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitSqrtFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitSqrtFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3290,11 +3070,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitRoundFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitRoundFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final RoundFunctionStmtContext roundFunctionStmt() throws RecognitionException {
@@ -3373,11 +3148,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitRandomFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitRandomFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final RandomFunctionStmtContext randomFunctionStmt() throws RecognitionException {
@@ -3452,11 +3222,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMeanFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMeanFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MeanFunctionStmtContext meanFunctionStmt() throws RecognitionException {
@@ -3510,11 +3275,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMedianFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMedianFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MedianFunctionStmtContext medianFunctionStmt() throws RecognitionException {
@@ -3567,11 +3327,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMaxFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMaxFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3629,11 +3384,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitValueList(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitValueList(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3709,11 +3459,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitMaxFromListStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitMaxFromListStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MaxFromListStmtContext maxFromListStmt() throws RecognitionException {
@@ -3766,11 +3511,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitToLowerFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitToLowerFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3825,11 +3565,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitToUpperFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitToUpperFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ToUpperFunctionStmtContext toUpperFunctionStmt() throws RecognitionException {
@@ -3882,11 +3617,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitTrimFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitTrimFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3941,11 +3671,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitTrimStartFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitTrimStartFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TrimStartFunctionStmtContext trimStartFunctionStmt() throws RecognitionException {
@@ -3998,11 +3723,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitTrimEndFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitTrimEndFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4060,11 +3780,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitReplaceFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitReplaceFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4128,11 +3843,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitSplitFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitSplitFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final SplitFunctionStmtContext splitFunctionStmt() throws RecognitionException {
@@ -4190,11 +3900,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitLeftFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitLeftFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4256,11 +3961,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitLeftRangeFunctionStmt(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitLeftRangeFunctionStmt(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4324,11 +4024,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitConcatFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitConcatFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ConcatFunctionStmtContext concatFunctionStmt() throws RecognitionException {
@@ -4391,11 +4086,6 @@ public class SimpleParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitContainsFunctionStmt(this);
 		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitContainsFunctionStmt(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ContainsFunctionStmtContext containsFunctionStmt() throws RecognitionException {
@@ -4449,11 +4139,6 @@ public class SimpleParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleListener ) ((SimpleListener)listener).exitLengthAccess(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SimpleVisitor ) return ((SimpleVisitor<? extends T>)visitor).visitLengthAccess(this);
-			else return visitor.visitChildren(this);
 		}
 	}
 
