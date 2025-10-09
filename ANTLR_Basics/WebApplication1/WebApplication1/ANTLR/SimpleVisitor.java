@@ -16,23 +16,11 @@ public interface SimpleVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram(SimpleParser.ProgramContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SimpleParser#line}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLine(SimpleParser.LineContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link SimpleParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitStatement(SimpleParser.StatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SimpleParser#block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBlock(SimpleParser.BlockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SimpleParser#assignment}.
 	 * @param ctx the parse tree
@@ -46,67 +34,40 @@ public interface SimpleVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCall(SimpleParser.FunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code parenthesizedExpression}
+	 * Visit a parse tree produced by the {@code ParenthesizedExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitParenthesizedExpression(SimpleParser.ParenthesizedExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code constantExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitConstantExpression(SimpleParser.ConstantExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code additiveExpression}
+	 * Visit a parse tree produced by the {@code AdditiveExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code identifierExpression}
+	 * Visit a parse tree produced by the {@code ConstantExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIdentifierExpression(SimpleParser.IdentifierExpressionContext ctx);
+	T visitConstantExpression(SimpleParser.ConstantExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code multiplicateExpression}
+	 * Visit a parse tree produced by the {@code MultiplicateExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitMultiplicateExpression(SimpleParser.MultiplicateExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code functionCallExpression}
+	 * Visit a parse tree produced by the {@code IdentifierExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitFunctionCallExpression(SimpleParser.FunctionCallExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code notExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNotExpression(SimpleParser.NotExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code comparisonExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitComparisonExpression(SimpleParser.ComparisonExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link SimpleParser#multiOp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMultiOp(SimpleParser.MultiOpContext ctx);
+	T visitIdentifierExpression(SimpleParser.IdentifierExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SimpleParser#addOp}.
 	 * @param ctx the parse tree
@@ -114,17 +75,35 @@ public interface SimpleVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAddOp(SimpleParser.AddOpContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link SimpleParser#compareOp}.
+	 * Visit a parse tree produced by {@link SimpleParser#multiOp}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCompareOp(SimpleParser.CompareOpContext ctx);
+	T visitMultiOp(SimpleParser.MultiOpContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SimpleParser#constant}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitConstant(SimpleParser.ConstantContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SimpleParser#line}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLine(SimpleParser.LineContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SimpleParser#block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlock(SimpleParser.BlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SimpleParser#compareOp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompareOp(SimpleParser.CompareOpContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SimpleParser#forStmt}.
 	 * @param ctx the parse tree

@@ -5,6 +5,13 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
 
     private final Map<String, Object> variables = new HashMap<>();
 
+    private double toNumber(Object obj) {
+        if (obj instanceof Number) return ((Number) obj).doubleValue();
+        if (obj instanceof String s) return Double.parseDouble(s);
+        throw new RuntimeException("Kein numerischer Wert: " + obj);
+    }
+
+
     @Override
     public Object visitAssignment(SimpleParser.AssignmentContext ctx) {
         System.out.println("visitAssignment aufgerufen: " + ctx.getText());
@@ -17,8 +24,42 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
 
     @Override
     public Object visitConstantExpression(SimpleParser.ConstantExpressionContext ctx) {
-        return ctx.constant().getText(); // Gibt den konstanten Wert als String zurück
+        return Double.parseDouble(ctx.constant().getText());
+         // Gibt den konstanten Wert als String zurück
     }
+
+    /*@Override
+    public Object visitExpression(SimpleParser.ExpressionContext ctx) {
+        if (ctx.getChildCount() == 3) { // also: expression op expression
+            Object left = visit(ctx.getChild(0));
+            String op = ctx.getChild(1).getText();
+            Object right = visit(ctx.getChild(2));
+
+            double l = Double.parseDouble(left.toString());
+            double r = Double.parseDouble(right.toString());
+
+            return switch (op) {
+                case "+" -> l + r;
+                case "-" -> l - r;
+                case "*" -> l * r;
+                case "/" -> {
+                    if (r == 0) throw new ArithmeticException("Division durch Null");
+                    yield l / r;
+                }
+                default -> throw new RuntimeException("Unbekannter Operator: " + op);
+            };
+        } else if (ctx.constant() != null) {
+            return Double.parseDouble(ctx.constant().getText());
+        } else if (ctx.IDENTIFIER() != null) {
+            String var = ctx.IDENTIFIER().getText();
+            if (!variables.containsKey(var)) {
+                throw new RuntimeException("Variable nicht definiert: " + var);
+            }
+            return variables.get(var);
+        }
+        return visitChildren(ctx);
+    }*/
+
 
     @Override
     public Object visitAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx) {
@@ -30,8 +71,9 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
         System.out.println("Rechter Operand: " + right);
         System.out.println("Operator: " + op);
 
-        double l = Double.parseDouble(left.toString());
-        double r = Double.parseDouble(right.toString());
+        double l = toNumber(left);
+        double r = toNumber(right);
+
 
         double result = switch (op) {
             case "+" -> l + r;
@@ -48,8 +90,9 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
         Object right = visit(ctx.expression(1));
         String op = ctx.multiOp().getText();
 
-        double l = Double.parseDouble(left.toString());
-        double r = Double.parseDouble(right.toString());
+        double l = toNumber(left);
+        double r = toNumber(right);
+
 
         return switch (op) {
             case "*" -> l * r;
@@ -76,35 +119,45 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
     @Override
     public Object visitFunctionCall(SimpleParser.FunctionCallContext ctx) {
         if (ctx.IDENTIFIER().getText().equals("print")) {
-            Object value = visit(ctx.expression(0));
-            System.out.println(value);
+            Object value = null;
+            if (ctx.expression() != null) { // optional!
+                value = visit(ctx.expression());
+                System.out.println(value);
+            } else {
+                System.out.println();
+            }
         }
         return null;
     }
 
+
     @Override
     public Object visitParenthesizedExpression(SimpleParser.ParenthesizedExpressionContext ctx) {
-        return visit(ctx.expression()); // Klammern einfach ignorieren
+        return visit(ctx.expression());
     }
 
     @Override
     public Object visitSqrtFunctionStmt(SimpleParser.SqrtFunctionStmtContext ctx) {
-        // Hole die beiden Argumente aus der Regel
-        Object arg1 = visit(ctx.getChild(4)); // Erstes Argument (NUMBER oder IDENTIFIER)
-        Object arg2 = visit(ctx.getChild(6)); // Zweites Argument (NUMBER oder IDENTIFIER)
+        String varName = ctx.IDENTIFIER(0).getText();
 
-        // Konvertiere die Argumente in Zahlen
-        double number1 = Double.parseDouble(arg1.toString());
-        double number2 = Double.parseDouble(arg2.toString());
+        String arg1Text = ctx.getChild(5).getText(); // nach '('
+        String arg2Text = ctx.getChild(7).getText(); // nach ','
 
-        // Berechne die Quadratwurzel des ersten Arguments
-        double result = Math.sqrt(number1);
+        double number1 = variables.containsKey(arg1Text)
+                ? Double.parseDouble(variables.get(arg1Text).toString())
+                : Double.parseDouble(arg1Text);
 
-        // Gib das Ergebnis aus (oder speichere es in einer Variablen)
-        System.out.println("Ergebnis: " + result);
+        double number2 = variables.containsKey(arg2Text)
+                ? Double.parseDouble(variables.get(arg2Text).toString())
+                : Double.parseDouble(arg2Text);
 
+        double result = Math.sqrt(number1); // number2 ist evtl. ungenutzt
+
+        variables.put(varName, result);
+        System.out.println("Variable " + varName + " = " + result);
         return result;
     }
+
 
     // Weitere Methoden für andere Regeln hinzufügen...
 }

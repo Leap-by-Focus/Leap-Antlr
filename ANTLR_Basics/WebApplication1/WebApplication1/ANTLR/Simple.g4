@@ -1,104 +1,114 @@
 grammar Simple;
 
-
-//lexer -> die mit Kleinbuchstaben -> definieren die Tokens
-//parser -> die mit Großbuchstaben -> definieren die Grammatik
-
-program: line* EOF;
-line: statement | block | forStmt | repeatStmt | loopStmt | whileStmt | untilStmt | asLongStmt | doWhileStmt | repeatAsLongStmt | repeatUntilStmt | doAsLongStmt | writeFileStmt | isNullStmt | existsStmt | sleepStmt | readFileStmt | deleteFileStmt | createFolderStmt | deleteFolderStmt | openFileStmt | minExpr | minListFunctionStmt | absFunctionStmt | sqrtFunctionStmt | roundFunctionStmt | randomFunctionStmt | meanFunctionStmt | medianFunctionStmt | maxFunctionStmt | maxFromListStmt | toLowerFunctionStmt | toUpperFunctionStmt | trimFunctionStmt | trimStartFunctionStmt | trimEndFunctionStmt | replaceFunctionStmt | splitFunctionStmt | leftFunctionStmt | leftRangeFunctionStmt | concatFunctionStmt | containsFunctionStmt | lengthAccess;
-
-statement: (assignment | functionCall) ';';
-block: '{' line* '}'; //Block muss mindestens 1 line haben
-
-
-functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')'; //nach einem Ausdruck können beliebig viele genommen werden
-/*expression 
-    : constant				            #constantExpression
-    | IDENTIFIER				        #identifierExpression
-    | functionCall				        #functionCallExpression
-    | '(' expression ')'			    #parenthesizedExpression
-    | '!' expression				    #notExpression
-    | expression multiOp expression		#multiplicateExpression
-    | expression addOp expression		#additiveExpression
-    | expression compareOp expression	#comparisonExpression
+//Basisstruktur
+program
+    : (statement | line)+ EOF
     ;
-*/
-assignment: IDENTIFIER '=' expression;
+
+statement
+    : assignment ';'
+    | functionCall ';'
+    ;
+
+//Variablenzuweisung
+assignment
+    : IDENTIFIER '=' expression
+    ;
+
+//Funktionsaufrufe
+functionCall
+    : IDENTIFIER '(' expression? ')'
+    ;
+
+//Expressions
 
 expression
-    : additiveExpression
-    ;
-additiveExpression
-    : multiplicativeExpression (('+' | '-') multiplicativeExpression)*
-    ;
-
-multiplicativeExpression
-    : primary (('*' | '/') primary)*
+    : expression addOp expression             #AdditiveExpression
+    | expression multiOp expression           #MultiplicateExpression
+    | '(' expression ')'                      #ParenthesizedExpression
+    | constant                                #ConstantExpression
+    | IDENTIFIER                              #IdentifierExpression
     ;
 
-primary
-    : IDENTIFIER
-    | CONSTANT
-    | '(' expression ')'
+addOp
+    : '+'
+    | '-'
     ;
 
-CONSTANT: [0-9]+ ('.' [0-9]+)?;
-IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
+multiOp
+    : '*'
+    | '/'
+    ;
 
-multiOp: '*' | '/' | '%';
-addOp: '+' | '-';
+constant
+    : NUMBER
+    ;
+
+//Token-Definitionen
+NUMBER
+    : [0-9]+ ('.' [0-9]+)?
+    ;
+
+IDENTIFIER
+    : [a-zA-Z_][a-zA-Z0-9_]*
+    ;
+
+WS
+    : [ \t\r\n]+ -> skip
+    ;
+
+//Rest
+line
+    : statement
+    | block
+    | forStmt
+    | repeatStmt
+    | loopStmt
+    | whileStmt
+    | untilStmt
+    | asLongStmt
+    | doWhileStmt
+    | repeatAsLongStmt
+    | repeatUntilStmt
+    | doAsLongStmt
+    | writeFileStmt
+    | isNullStmt
+    | existsStmt
+    | sleepStmt
+    | readFileStmt
+    | deleteFileStmt
+    | createFolderStmt
+    | deleteFolderStmt
+    | openFileStmt
+    | minExpr
+    | minListFunctionStmt
+    | absFunctionStmt
+    | sqrtFunctionStmt
+    | roundFunctionStmt
+    | randomFunctionStmt
+    | meanFunctionStmt
+    | medianFunctionStmt
+    | maxFunctionStmt
+    | maxFromListStmt
+    | toLowerFunctionStmt
+    | toUpperFunctionStmt
+    | trimFunctionStmt
+    | trimStartFunctionStmt
+    | trimEndFunctionStmt
+    | replaceFunctionStmt
+    | splitFunctionStmt
+    | leftFunctionStmt
+    | leftRangeFunctionStmt
+    | concatFunctionStmt
+    | containsFunctionStmt
+    | lengthAccess
+    ;
+
+block: '{' line* '}';
+
 compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
-constant: INTEGER | NUMBER | STRING | BOOL | NULL | CHARACTER | TEXT | UTC_DATE | ISO8601 | BIN | BINARY;
-
-BOOL: 'true' | 'false';
-
-WS: [ \t\r\n]+ -> skip; //Leerzeichen, Tabs, Zeichenumbrüche
-
-INTEGER: [0-9]+;
-
-NUMBER: [0-9]+ '.' [0-9]+;
-
-STRING: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
-
-TEXT: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
-
-CHAR: '\'' (ESC | ~['\\]) '\'';
-
-CHARACTER: '\'' (ESC | ~['\\]) '\'';
-
-fragment ESC: '\\' [btnr"'\\];
-
-NULL: 'null';
-
-BIN: '0' | '1';
-
-BINARY: '0' | '1';
-
-UTC_DATE
-  : DIGIT DIGIT '-' DIGIT DIGIT '-' DIGIT DIGIT
-    (':' DIGIT DIGIT
-      (':' DIGIT DIGIT
-        (':' DIGIT DIGIT)?
-      )?
-    )?
-  ;
-
-ISO8601
-  : DIGIT DIGIT DIGIT DIGIT '-' DIGIT DIGIT '-' DIGIT DIGIT
-    ':' DIGIT DIGIT ':' DIGIT DIGIT ':' DIGIT DIGIT
-    ('+' | '-') DIGIT DIGIT ':' DIGIT DIGIT
-  ;
-
-fragment DIGIT : [0-9];
-
-LINE_COMMENT
-  : '//' ~[\r\n]* -> skip
-  ;
-
-BLOCK_COMMENT
-  : '!!' .*? '!!' -> skip
-  ;
+//Schleifen und Bedingungen
 
 forStmt
   : 'for' IDENTIFIER 'from' INTEGER 'to' INTEGER '{' line* '}'
@@ -158,6 +168,7 @@ doAsLongStmt
   : 'do' '{' line* '}' 'as long' expr customCompOp expr
   ;
 
+//File
 writeFileStmt
   : 'var' IDENTIFIER '.' 'WriteFile' '(' STRING ')'
   ;
@@ -165,7 +176,6 @@ writeFileStmt
 isNullStmt
   : 'var' IDENTIFIER '.' 'IsNull' '(' IDENTIFIER ')'
   ;
-
 
 existsStmt
   : 'var' IDENTIFIER '.' 'Exists' '(' (STRING | IDENTIFIER) ')'
@@ -191,19 +201,19 @@ deleteFolderStmt
   : 'DeleteFolder' '(' STRING ')'
   ;
 
-
 openFileStmt
   : 'OpenFile' '(' STRING ')'
   ;
 
+//Mathematische Funktionen
+
 minExpr
-  : IDENTIFIER '.' 'Min' '(' numberList ')'        # minFunctionCall
+  : IDENTIFIER '.' 'Min' '(' numberList ')'        #minFunctionCall
   ;
 
 numberList
   : NUMBER (',' NUMBER)*
   ;
-//gehört zur minExpr
 
 minListFunctionStmt
   : 'var' IDENTIFIER '.' 'Min' '(' IDENTIFIER ')'
@@ -240,11 +250,14 @@ maxFunctionStmt
 valueList
   : (NUMBER | IDENTIFIER) (',' (NUMBER | IDENTIFIER))*
   ;
-//gehört zum maxFunctionStmt
 
 maxFromListStmt
   : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')'
   ;
+
+// ==========================
+//  STRING-FUNKTIONEN
+// ==========================
 
 toLowerFunctionStmt
   : 'var' IDENTIFIER '.' 'ToLower' '(' IDENTIFIER ')'
@@ -294,5 +307,17 @@ lengthAccess
   : IDENTIFIER '.' 'Length'
   ;
 
+//Basics
 
-//end hinzufügen
+BOOL: 'true' | 'false';
+INTEGER: [0-9]+;
+STRING: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
+TEXT: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
+CHARACTER: '\'' (ESC | ~['\\]) '\'';
+fragment ESC: '\\' [btnr"'\\];
+NULL: 'null';
+BIN: '0' | '1';
+BINARY: '0' | '1';
+
+LINE_COMMENT: '//' ~[\r\n]* -> skip;
+BLOCK_COMMENT: '!!' .*? '!!' -> skip;

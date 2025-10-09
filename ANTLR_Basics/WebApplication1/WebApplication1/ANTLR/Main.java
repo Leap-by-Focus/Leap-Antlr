@@ -1,3 +1,4 @@
+
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import java.nio.file.*;
@@ -6,7 +7,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         try {
-            // Lese die Datei test.simple
+            //Datei test.simple lesen
             System.out.println("Versuche, die Datei test.simple zu lesen...");
             String input = Files.readString(Path.of("test.simple"));
 
@@ -17,28 +18,28 @@ public class Main {
 
             System.out.println("Datei-Inhalt erfolgreich gelesen: " + input);
 
-            // Lexer und TokenStream erstellen
+            //Lexer und TokenStream erstellen
             System.out.println("Erstelle Lexer...");
             SimpleLexer lexer = new SimpleLexer(CharStreams.fromString(input));
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-            // Debugging: Zeige alle Tokens
+            //Debugging: alle Tokens anzeigen
             System.out.println("Tokens:");
             tokens.fill();
             for (Token token : tokens.getTokens()) {
                 System.out.println(token.toString());
             }
 
-            // Parser erstellen
+            //Parser erstellen
             System.out.println("Erstelle Parser...");
             SimpleParser parser = new SimpleParser(tokens);
-            ParseTree tree = parser.program(); // Starte mit der Regel 'program'
+            ParseTree tree = parser.program();
 
-            // Debugging: Zeige den Parse-Baum
+            //Debugging: Parse-Baum
             System.out.println("Parse-Baum:");
             System.out.println(tree.toStringTree(parser));
 
-            // Interpreter ausführen
+            //Interpreter ausführen
             System.out.println("Starte Interpreter...");
             SimpleInterpreter interpreter = new SimpleInterpreter();
             interpreter.visit(tree);

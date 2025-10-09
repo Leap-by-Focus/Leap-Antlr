@@ -17,16 +17,6 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitProgram(SimpleParser.ProgramContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SimpleParser#line}.
-	 * @param ctx the parse tree
-	 */
-	void enterLine(SimpleParser.LineContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SimpleParser#line}.
-	 * @param ctx the parse tree
-	 */
-	void exitLine(SimpleParser.LineContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SimpleParser#statement}.
 	 * @param ctx the parse tree
 	 */
@@ -36,16 +26,6 @@ public interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStatement(SimpleParser.StatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SimpleParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void enterBlock(SimpleParser.BlockContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SimpleParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void exitBlock(SimpleParser.BlockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SimpleParser#assignment}.
 	 * @param ctx the parse tree
@@ -67,111 +47,65 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitFunctionCall(SimpleParser.FunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code parenthesizedExpression}
+	 * Enter a parse tree produced by the {@code ParenthesizedExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
 	void enterParenthesizedExpression(SimpleParser.ParenthesizedExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code parenthesizedExpression}
+	 * Exit a parse tree produced by the {@code ParenthesizedExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
 	void exitParenthesizedExpression(SimpleParser.ParenthesizedExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code constantExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterConstantExpression(SimpleParser.ConstantExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code constantExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitConstantExpression(SimpleParser.ConstantExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code additiveExpression}
+	 * Enter a parse tree produced by the {@code AdditiveExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
 	void enterAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code additiveExpression}
+	 * Exit a parse tree produced by the {@code AdditiveExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
 	void exitAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code identifierExpression}
+	 * Enter a parse tree produced by the {@code ConstantExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterIdentifierExpression(SimpleParser.IdentifierExpressionContext ctx);
+	void enterConstantExpression(SimpleParser.ConstantExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code identifierExpression}
+	 * Exit a parse tree produced by the {@code ConstantExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitIdentifierExpression(SimpleParser.IdentifierExpressionContext ctx);
+	void exitConstantExpression(SimpleParser.ConstantExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code multiplicateExpression}
+	 * Enter a parse tree produced by the {@code MultiplicateExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
 	void enterMultiplicateExpression(SimpleParser.MultiplicateExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code multiplicateExpression}
+	 * Exit a parse tree produced by the {@code MultiplicateExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
 	void exitMultiplicateExpression(SimpleParser.MultiplicateExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code functionCallExpression}
+	 * Enter a parse tree produced by the {@code IdentifierExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunctionCallExpression(SimpleParser.FunctionCallExpressionContext ctx);
+	void enterIdentifierExpression(SimpleParser.IdentifierExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code functionCallExpression}
+	 * Exit a parse tree produced by the {@code IdentifierExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunctionCallExpression(SimpleParser.FunctionCallExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code notExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNotExpression(SimpleParser.NotExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code notExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNotExpression(SimpleParser.NotExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code comparisonExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterComparisonExpression(SimpleParser.ComparisonExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code comparisonExpression}
-	 * labeled alternative in {@link SimpleParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitComparisonExpression(SimpleParser.ComparisonExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link SimpleParser#multiOp}.
-	 * @param ctx the parse tree
-	 */
-	void enterMultiOp(SimpleParser.MultiOpContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SimpleParser#multiOp}.
-	 * @param ctx the parse tree
-	 */
-	void exitMultiOp(SimpleParser.MultiOpContext ctx);
+	void exitIdentifierExpression(SimpleParser.IdentifierExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SimpleParser#addOp}.
 	 * @param ctx the parse tree
@@ -183,15 +117,15 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitAddOp(SimpleParser.AddOpContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SimpleParser#compareOp}.
+	 * Enter a parse tree produced by {@link SimpleParser#multiOp}.
 	 * @param ctx the parse tree
 	 */
-	void enterCompareOp(SimpleParser.CompareOpContext ctx);
+	void enterMultiOp(SimpleParser.MultiOpContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SimpleParser#compareOp}.
+	 * Exit a parse tree produced by {@link SimpleParser#multiOp}.
 	 * @param ctx the parse tree
 	 */
-	void exitCompareOp(SimpleParser.CompareOpContext ctx);
+	void exitMultiOp(SimpleParser.MultiOpContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SimpleParser#constant}.
 	 * @param ctx the parse tree
@@ -202,6 +136,36 @@ public interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitConstant(SimpleParser.ConstantContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#line}.
+	 * @param ctx the parse tree
+	 */
+	void enterLine(SimpleParser.LineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#line}.
+	 * @param ctx the parse tree
+	 */
+	void exitLine(SimpleParser.LineContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#block}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlock(SimpleParser.BlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#block}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlock(SimpleParser.BlockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#compareOp}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompareOp(SimpleParser.CompareOpContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#compareOp}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompareOp(SimpleParser.CompareOpContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SimpleParser#forStmt}.
 	 * @param ctx the parse tree
