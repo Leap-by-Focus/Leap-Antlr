@@ -9,10 +9,10 @@ line: statement | block | forStmt | repeatStmt | loopStmt | whileStmt | untilStm
 
 statement: (assignment | functionCall) ';';
 block: '{' line* '}'; //Block muss mindestens 1 line haben
-assignment: IDENTIFIER '=' expression;
+
 
 functionCall: IDENTIFIER '(' (expression (',' expression)*)? ')'; //nach einem Ausdruck können beliebig viele genommen werden
-expression 
+/*expression 
     : constant				            #constantExpression
     | IDENTIFIER				        #identifierExpression
     | functionCall				        #functionCallExpression
@@ -22,6 +22,28 @@ expression
     | expression addOp expression		#additiveExpression
     | expression compareOp expression	#comparisonExpression
     ;
+*/
+assignment: IDENTIFIER '=' expression;
+
+expression
+    : additiveExpression
+    ;
+additiveExpression
+    : multiplicativeExpression (('+' | '-') multiplicativeExpression)*
+    ;
+
+multiplicativeExpression
+    : primary (('*' | '/') primary)*
+    ;
+
+primary
+    : IDENTIFIER
+    | CONSTANT
+    | '(' expression ')'
+    ;
+
+CONSTANT: [0-9]+ ('.' [0-9]+)?;
+IDENTIFIER: [a-zA-Z_][a-zA-Z_0-9]*;
 
 multiOp: '*' | '/' | '%';
 addOp: '+' | '-';
@@ -32,8 +54,6 @@ constant: INTEGER | NUMBER | STRING | BOOL | NULL | CHARACTER | TEXT | UTC_DATE 
 BOOL: 'true' | 'false';
 
 WS: [ \t\r\n]+ -> skip; //Leerzeichen, Tabs, Zeichenumbrüche
-
-IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
 
 INTEGER: [0-9]+;
 

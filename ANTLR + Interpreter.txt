@@ -1,0 +1,70 @@
+ANTLR + Interpreter
+
+
+Java-Language-Server (Backend)
+ein Java-Programm mit LSP4J, das:
+- ANTLR-Dateien (SimpleLexer, SimpleParser, Interpreter usw.) nutzt
+- Fehler erkennt und als Diagnostics zurückschickt
+- später auch Features wie Autocomplete, Hover usw. liefern kann
+- Am Ende -> Server zu einer JAR-Datei (zb mylang-lsp.jar)
+(läuft unabhängig, redet über stdin/stdout mit VS Code)
+
+VS Code Extension (Frontend)
+- Bindeglied zwischen VS Code und Java-Server
+- Extension ist in TypeScript geschrieben
+- startet JAR (zb java -jar path/to/mylang-lsp.jar)
+- leitet Editor-Events (Datei geöffnet, geändert …) weiter
+- zeigt die vom Server kommenden Fehler, Autocompletions usw im Editor an
+
+Minimaler Einstieg (extension.ts in VS Code Extension):
+import * as path from 'path';
+import * as vscode from 'vscode';
+import { LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
+
+let client: LanguageClient;
+
+export function activate(context: vscode.ExtensionContext) {
+  // Pfad zum JAR des Servers
+  const jarPath = context.asAbsolutePath(path.join('server', 'mylang-lsp.jar'));
+
+  const serverOptions: ServerOptions = {
+    command: 'java',
+    args: ['-jar', jarPath]
+  };
+
+  const clientOptions: LanguageClientOptions = {
+    documentSelector: [{ scheme: 'file', language: 'mylang' }]
+  };
+
+  client = new LanguageClient('mylang', 'MyLang Language Server', serverOptions, clientOptions);
+  client.start();
+}
+
+export function deactivate(): Thenable<void> | undefined {
+  return client ? client.stop() : undefined;
+}
+
+Sprache registrieren
+Im package.json der Extension:
+
+"contributes": {
+  "languages": [
+    {
+      "id": "mylang",
+      "aliases": ["MyLang", "mylang"],
+      "extensions": [".my"],
+      "configuration": "./language-configuration.json"
+    }
+  ]
+}
+
+
+Damit erkennt VS Code die Dateien (.my) als eigene Sprache
+
+Workflow in VS Code
+Arbeitsablauf :
+- .my-Datei in VS Code öffnen
+- Extension startet den Java-LSP-Server (mylang-lsp.jar)
+- Der Server benutzt ANTLR, parst den Code und schickt Fehler/Warnungen zurück
+- VS Code markiert die Fehler live im Editor
+Später -> Commands hinzufügen wie „Run MyLang File“ → Interpreter ausführen

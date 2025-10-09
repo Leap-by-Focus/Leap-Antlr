@@ -8,7 +8,13 @@ public class Main {
         try {
             // Lese die Datei test.simple
             System.out.println("Versuche, die Datei test.simple zu lesen...");
-            String input = Files.readString(Path.of("C:/Users/shram/Documents/GitHub/Leap-Antlr/ANTLR_Basics/WebApplication1/WebApplication1/ANTLR/test.simple"));
+            String input = Files.readString(Path.of("test.simple"));
+
+            if (input.isBlank()) {
+                System.out.println("Die Datei test.simple ist leer. Bitte füge gültige Inhalte hinzu.");
+                return;
+            }
+
             System.out.println("Datei-Inhalt erfolgreich gelesen: " + input);
 
             // Lexer und TokenStream erstellen
@@ -42,7 +48,7 @@ public class Main {
         } catch (RuntimeException e) {
             System.err.println("Laufzeitfehler: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace(); // Zeigt den Fehler-Stacktrace
+            e.printStackTrace();
         }
     }
 }
