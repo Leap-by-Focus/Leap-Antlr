@@ -21,7 +21,6 @@ functionCall
     ;
 
 //Expressions
-
 expression
     : expression addOp expression             #AdditiveExpression
     | expression multiOp expression           #MultiplicateExpression
@@ -42,6 +41,7 @@ multiOp
 
 constant
     : NUMBER
+    | STRING
     ;
 
 //Token-Definitionen
@@ -109,7 +109,6 @@ block: '{' line* '}';
 compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
 //Schleifen und Bedingungen
-
 forStmt
   : 'for' IDENTIFIER 'from' INTEGER 'to' INTEGER '{' line* '}'
   ;
@@ -168,6 +167,7 @@ doAsLongStmt
   : 'do' '{' line* '}' 'as long' expr customCompOp expr
   ;
 
+
 //File
 writeFileStmt
   : 'var' IDENTIFIER '.' 'WriteFile' '(' STRING ')'
@@ -205,8 +205,8 @@ openFileStmt
   : 'OpenFile' '(' STRING ')'
   ;
 
-//Mathematische Funktionen
 
+//Mathematische Funktionen
 minExpr
   : IDENTIFIER '.' 'Min' '(' numberList ')'        #minFunctionCall
   ;

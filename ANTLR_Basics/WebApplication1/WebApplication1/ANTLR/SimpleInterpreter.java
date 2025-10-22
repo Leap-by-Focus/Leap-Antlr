@@ -14,7 +14,6 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
 
     @Override
     public Object visitAssignment(SimpleParser.AssignmentContext ctx) {
-        System.out.println("visitAssignment aufgerufen: " + ctx.getText());
         String varName = ctx.IDENTIFIER().getText();
         Object value = visit(ctx.expression());
         variables.put(varName, value);
@@ -24,8 +23,12 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
 
     @Override
     public Object visitConstantExpression(SimpleParser.ConstantExpressionContext ctx) {
-        return Double.parseDouble(ctx.constant().getText());
-         // Gibt den konstanten Wert als String zurück
+        if (ctx.constant().NUMBER() != null) {
+            return Double.parseDouble(ctx.constant().NUMBER().getText());
+        } else if (ctx.constant().STRING() != null) {
+            return ctx.constant().STRING().getText().replace("\"", "").replace("'", ""); // Entferne Anführungszeichen
+        }
+        throw new RuntimeException("Unbekannter Konstanter Ausdruck: " + ctx.getText());
     }
 
     /*@Override
@@ -63,25 +66,29 @@ public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
 
     @Override
     public Object visitAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx) {
-        System.out.println("visitAdditiveExpression aufgerufen: " + ctx.getText());
-        Object left = visit(ctx.expression(0));
-        Object right = visit(ctx.expression(1));
-        String op = ctx.addOp().getText();
-        System.out.println("Linker Operand: " + left);
-        System.out.println("Rechter Operand: " + right);
-        System.out.println("Operator: " + op);
+        Object left = visit(ctx.expression(0)); // Linker Operand
+        Object right = visit(ctx.expression(1)); // Rechter Operand
+        String operator = ctx.addOp().getText(); // Operator (+ oder -)
 
-        double l = toNumber(left);
-        double r = toNumber(right);
+        // String-Konkatenation
+        if (left instanceof String || right instanceof String) {
+            String leftStr = left.toString();
+            String rightStr = right.toString();
+            if (operator.equals("+")) {
+                return leftStr + rightStr; // Konkatenation
+            } else {
+                throw new RuntimeException("Operator '-' ist für Strings nicht erlaubt.");
+            }
+        }
 
-
-        double result = switch (op) {
-            case "+" -> l + r;
-            case "-" -> l - r;
-            default -> throw new RuntimeException("Unbekannter Operator: " + op);
+        // Numerische Berechnung
+        double leftNum = toNumber(left);
+        double rightNum = toNumber(right);
+        return switch (operator) {
+            case "+" -> leftNum + rightNum;
+            case "-" -> leftNum - rightNum;
+            default -> throw new RuntimeException("Unbekannter Operator: " + operator);
         };
-        System.out.println("Ergebnis der Addition/Subtraktion: " + result);
-        return result;
     }
 
     @Override
