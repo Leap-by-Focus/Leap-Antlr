@@ -42,6 +42,7 @@ multiOp
 constant
     : NUMBER
     | STRING
+    | CHARACTER
     ;
 
 //Token-Definitionen
@@ -110,15 +111,15 @@ compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
 //Schleifen und Bedingungen
 forStmt
-  : 'for' IDENTIFIER 'from' INTEGER 'to' INTEGER '{' line* '}'
+  : 'for' IDENTIFIER 'from' expr 'to' expr '{' line* '}'
   ;
 
 repeatStmt
-  : 'repeat' INTEGER 'times' '{' line* '}'
+  : 'repeat' expr 'times' '{' line* '}'
   ;
 
 loopStmt
-  : 'loop from' INTEGER 'to' INTEGER '{' line* '}'
+  : 'loop from' expr 'to' expr '{' line* '}'
   ;
 
 whileStmt

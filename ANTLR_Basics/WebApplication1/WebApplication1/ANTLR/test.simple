@@ -1,6 +1,14 @@
-a = 2;
-b = 3;
-c = a + b;
-d = "Hallo";
-e = "Affe";
-ausgabe = d + " " + e + "!";
+// Einfache Schleifen
+for i from 1 to 3 {
+    print("FOR: i = " + i);
+}
+
+repeat 2 times {
+    print("REPEAT: Hallo");
+}
+
+loop from 1 to 2 {
+    print("LOOP: Test");
+}
+
+print("Alle Schleifen fertig!");
