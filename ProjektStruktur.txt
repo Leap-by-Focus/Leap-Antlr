@@ -1,0 +1,32 @@
+LeapLang/
+│
+├── grammar/
+│   └── Leap.g4                   # Deine ANTLR-Grammatik
+│
+├── src/
+│   ├── Main.java                 # Einstiegspunkt (z.B. testet ein Leap-Skript)
+│   │
+│   ├── interpreter/
+│   │   ├── EvalVisitor.java      # Visitor (führt den Code aus)
+│   │   ├── Env.java              # Variablen & Scope
+│   │   ├── LeapFunction.java     # Funktionsobjekte
+│   │   └── Builtins.java         # Eingebaute Funktionen (print, len, ...)
+│   │
+│   └── util/
+│       └── LeapUtils.java        # z.B. Fehlerausgabe, Debug-Tools
+│
+├── generated/
+│   ├── LeapLexer.java
+│   ├── LeapParser.java
+│   ├── LeapBaseVisitor.java
+│   └── LeapVisitor.java          # Automatisch von ANTLR generiert
+│
+├── examples/
+│   ├── hello.leap
+│   ├── math.leap
+│   └── functions.leap
+│
+├── tools/
+│   └── antlr-4.13.1-complete.jar # ANTLR JAR
+│
+└── build.sh                      # Build-Script für ANTLR + Compile

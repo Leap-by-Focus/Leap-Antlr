@@ -1,0 +1,19 @@
+# 📘 Grammar – Leap.g4
+
+Dieser Ordner enthält die ANTLR-Grammatik für die Programmiersprache **Leap**.
+
+## Inhalt
+- `Leap.g4` – Die formale Sprachdefinition in ANTLR-Syntax.
+
+## Beschreibung
+Die Grammatik definiert die **Syntaxregeln** für Leap, z. B.:
+- Variablen (`let x = 10;`)
+- Funktionen (`func greet(name) { ... }`)
+- Kontrollstrukturen (`if`, `while`)
+- Ausdrücke (`x + y * 2`, `text + "World"`)
+
+## Verwendung
+ANTLR generiert aus dieser Datei automatisch den **Lexer** und **Parser**:
+
+```bash
+java -jar tools/antlr-4.13.1-complete.jar -Dlanguage=Java -visitor -o generated grammar/Leap.g4

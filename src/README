@@ -1,0 +1,6 @@
+---
+
+src/README.md`
+Source – Interpreter & Laufzeitlogik
+
+Dieser Ordner enthält den **Java-Quellcode** für den Leap-Interpreter.
