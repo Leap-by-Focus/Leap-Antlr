@@ -1,6 +1,8 @@
-// Einfacher Test für WriteFile und ReadFile
 text = "Hallo Welt! Das ist ein Test.";
 var text.WriteFile("test_ausgabe.txt");
 
 var gelesen.ReadFile("test_ausgabe.txt");
 print("Gelesener Inhalt: " + gelesen);
+
+DeleteFile(text);
+print("Datei wurde gelöscht");

@@ -75,6 +75,9 @@ public class SimpleExecutor {
         else if (tree instanceof SimpleParser.ReadFileStmtContext) {
             processReadFileStmt((SimpleParser.ReadFileStmtContext) tree);
         }
+        else if (tree instanceof SimpleParser.DeleteFileStmtContext) {
+            processDeleteFileStmt((SimpleParser.DeleteFileStmtContext) tree);
+        }
     }
     
     private static void processAssignment(SimpleParser.AssignmentContext assign) {
@@ -300,5 +303,18 @@ public class SimpleExecutor {
         } catch (IOException e){
             throw new RuntimeException("Fehler beim Lesen der Datei: " + e.getMessage());
         } 
+    }
+
+    private static void processDeleteFileStmt(SimpleParser.DeleteFileStmtContext ctx){
+        String fileName = ctx.STRING().getText().replaceAll("^\"|\"$", "");
+
+        System.out.println("Datei " + fileName + " wird gelöscht.");
+
+        try{
+            Files.delete(Path.of(fileName));
+            System.out.println("Datei erfolgreich gelöscht: " + fileName);
+        } catch (IOException e){
+            throw new RuntimeException("Fehler beim Löschen der Datei: " + e.getMessage());
+        }
     }
 }
