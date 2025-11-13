@@ -1,14 +1,6 @@
-// Einfache Schleifen
-for i from 1 to 3 {
-    print("FOR: i = " + i);
-}
+// Einfacher Test für WriteFile und ReadFile
+text = "Hallo Welt! Das ist ein Test.";
+var text.WriteFile("test_ausgabe.txt");
 
-repeat 2 times {
-    print("REPEAT: Hallo");
-}
-
-loop from 1 to 2 {
-    print("LOOP: Test");
-}
-
-print("Alle Schleifen fertig!");
+var gelesen.ReadFile("test_ausgabe.txt");
+print("Gelesener Inhalt: " + gelesen);

@@ -29,7 +29,7 @@ public class SimpleExecutor {
         ParseTree tree = parser.program();
         processTree(tree);
         
-        System.out.println("\n=== FINALE AUSGABE ===");
+        System.out.println("\n=== AUSGABE ===");
         variables.forEach((name, value) -> System.out.println(name + " = " + value));
     }
     
@@ -69,6 +69,12 @@ public class SimpleExecutor {
         else if (tree instanceof SimpleParser.BlockContext) {
             processBlock((SimpleParser.BlockContext) tree);
         }
+        else if (tree instanceof SimpleParser.WriteFileStmtContext) {
+            processWriteFileStmt((SimpleParser.WriteFileStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.ReadFileStmtContext) {
+            processReadFileStmt((SimpleParser.ReadFileStmtContext) tree);
+        }
     }
     
     private static void processAssignment(SimpleParser.AssignmentContext assign) {
@@ -81,22 +87,18 @@ public class SimpleExecutor {
     private static void processFunctionCall(SimpleParser.FunctionCallContext func) {
         if ("print".equals(func.IDENTIFIER().getText()) && func.expression() != null) {
             Object value = evaluateExpression(func.expression());
-            System.out.println("AUSGABE: " + value);
+            System.out.println("Ausgabe: " + value);
         }
     }
     
-    // ==========================
-    // SCHLEIFEN-IMPLEMENTIERUNG
-    // ==========================
+    //Schleifen
     
-    // FOR-Schleife: for i from 1 to 3 { ... }
+    //FOR-Schleife
     private static void processForLoop(SimpleParser.ForStmtContext ctx) {
-        // Extrahiere Informationen aus dem Text
         String loopVar = ctx.IDENTIFIER().getText();
         int start = 1;
         int end = 3;
         
-        // Durchsuche Kinder nach Zahlen
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree child = ctx.getChild(i);
             if (child instanceof TerminalNode) {
@@ -131,11 +133,10 @@ public class SimpleExecutor {
         return null;
     }
     
-    // REPEAT-Schleife: repeat 5 times { ... }
+    //REPEAT-Schleife
     private static void processRepeatLoop(SimpleParser.RepeatStmtContext ctx) {
-        int times = 2; // Default
+        int times = 2; //Default
         
-        // Durchsuche Kinder nach Zahl
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree child = ctx.getChild(i);
             if (child instanceof TerminalNode) {
@@ -164,13 +165,12 @@ public class SimpleExecutor {
         return null;
     }
     
-    // LOOP-Schleife: loop from 1 to 10 { ... }
+    //LOOP-Schleife
     private static void processLoopStmt(SimpleParser.LoopStmtContext ctx) {
         int start = 1;
         int end = 2;
         int numberIndex = 0;
         
-        // Durchsuche Kinder nach Zahlen
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree child = ctx.getChild(i);
             if (child instanceof TerminalNode) {
@@ -203,7 +203,7 @@ public class SimpleExecutor {
         return null;
     }
     
-    // Block verarbeiten
+    //Block verarbeiten
     private static void processBlock(SimpleParser.BlockContext block) {
         if (block != null) {
             for (int i = 0; i < block.getChildCount(); i++) {
@@ -215,9 +215,7 @@ public class SimpleExecutor {
         }
     }
     
-    // ==========================
-    // EXPRESSION AUSWERTUNG
-    // ==========================
+    //Expressions auswerten
     
     private static Object evaluateExpression(SimpleParser.ExpressionContext expr) {
         if (expr instanceof SimpleParser.IdentifierExpressionContext) {
@@ -265,5 +263,42 @@ public class SimpleExecutor {
         }
         
         throw new RuntimeException("Unbekannter Expression-Typ: " + expr.getClass().getSimpleName());
+    }
+
+    //File-Methoden
+    private static void processWriteFileStmt(SimpleParser.WriteFileStmtContext ctx){
+        String varName = ctx.IDENTIFIER().getText();
+        String filename = ctx.STRING().getText().replaceAll("^\"|\"$", "");
+
+        System.out.println("Schreibe " + varName + " in die Datei " + filename);
+
+        if (!variables.containsKey(varName)) {
+            throw new RuntimeException("Variable nicht definiert: " + varName);
+        }
+
+        Object value = variables.get(varName);
+        System.out.println("Inhalt: " + value);
+
+        try{
+            Files.writeString(Path.of(filename), value.toString());
+            System.out.println("Datei erfolgreich geschrieben: " + filename);
+        } catch (IOException e){
+            throw new RuntimeException("Fehler beim Schreiben der Datei: " + e.getMessage());
+        }
+    }
+
+    private static void processReadFileStmt(SimpleParser.ReadFileStmtContext ctx){
+        String varName = ctx.IDENTIFIER().getText();
+        String filename = ctx.STRING().getText().replaceAll("^\"|\"$", "");
+
+        System.out.println("Lese die Datei " + filename + " in die Variable " + varName);
+
+        try{
+            String content = Files.readString(Path.of(filename));
+            variables.put(varName, content);
+            System.out.println("Datei erfolgreich gelesen: " + filename + ", Inhalt: " + content);
+        } catch (IOException e){
+            throw new RuntimeException("Fehler beim Lesen der Datei: " + e.getMessage());
+        } 
     }
 }
