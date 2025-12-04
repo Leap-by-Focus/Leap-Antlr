@@ -159,6 +159,12 @@ public class SimpleExecutor {
         else if (tree instanceof TerminalNode){
             return;
         }
+        else if (tree instanceof SimpleParser.MinExprContext){
+            processMinExpr((SimpleParser.MinExprContext) tree);
+        }
+        else if (tree instanceof SimpleParser.processMinListFunctionStmtContext){
+            processMinListFunctionStmtContext((SimpleParser.processMinListFunctionStmtContext) tree);
+        }
     }
     
     private static void processAssignment(SimpleParser.AssignmentContext assign) {
@@ -1553,5 +1559,39 @@ public class SimpleExecutor {
         } catch (IOException e) {
             throw new RuntimeException("Fehler beim Öffnen der Datei: " + e.getMessage());
         }
+    }
+
+
+    //Mathematische Funktionen
+
+
+    private static void processMinExpr(SimpleParser.MinExprContext ctx) {
+        String resultVar = ctx.IDENTIFIER().getText();
+
+        List<double> numbers = new ArrayList<>();
+
+        if (ctx.numberList() != null) {
+            for (TerminalNode numberNode : ctx.numberList().NUMBER()) {
+                numbers.add(Double.parseDouble(numberNode.getText()));
+            }
+        }
+
+        if (numbers.isEmpty()) {
+            throw new RuntimeException("Min-Funktion benötigt mindestens eine Zahl");
+        }
+
+        double min = numbers.get(0);
+        for (double num : numbers) {
+            if (num < min) {
+                min = num;
+            }
+        }
+
+        variables.put(resultVar, min);
+        System.out.println("Minimum-Wert berechnet: " + resultVar + " = " + min);
+    }
+
+    private static void processMinListFunctionStmt(SimpleParser.processMinListFunctionStmt ctx){
+        System.out.println("noch nicht aufgerufen");
     }
 }
