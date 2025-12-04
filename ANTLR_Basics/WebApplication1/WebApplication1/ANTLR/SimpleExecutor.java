@@ -159,11 +159,11 @@ public class SimpleExecutor {
         else if (tree instanceof TerminalNode){
             return;
         }
-        else if (tree instanceof SimpleParser.MinExprContext){
+        else if (tree instanceof SimpleParser.MinExprContext) {
             processMinExpr((SimpleParser.MinExprContext) tree);
         }
-        else if (tree instanceof SimpleParser.processMinListFunctionStmtContext){
-            processMinListFunctionStmtContext((SimpleParser.processMinListFunctionStmtContext) tree);
+        else if (tree instanceof SimpleParser.MinListFunctionStmtContext) {
+            processMinListFunctionStmt((SimpleParser.MinListFunctionStmtContext) tree);
         }
     }
     
@@ -1566,32 +1566,45 @@ public class SimpleExecutor {
 
 
     private static void processMinExpr(SimpleParser.MinExprContext ctx) {
-        String resultVar = ctx.IDENTIFIER().getText();
-
-        List<double> numbers = new ArrayList<>();
-
-        if (ctx.numberList() != null) {
-            for (TerminalNode numberNode : ctx.numberList().NUMBER()) {
+        //MinExpr hat #minFunctionCall label
+        SimpleParser.MinFunctionCallContext minCall = (SimpleParser.MinFunctionCallContext) ctx;
+        String resultVar = minCall.IDENTIFIER().getText();
+        
+        // Extrahiere alle Zahlen aus der Liste
+        List<Double> numbers = new ArrayList<>();
+        
+        // Gehe durch die numberList
+        if (minCall.numberList() != null) {
+            for (TerminalNode numberNode : minCall.numberList().NUMBER()) {
                 numbers.add(Double.parseDouble(numberNode.getText()));
             }
         }
-
+        
         if (numbers.isEmpty()) {
             throw new RuntimeException("Min-Funktion benötigt mindestens eine Zahl");
         }
-
+        
+        // Finde das Minimum
         double min = numbers.get(0);
         for (double num : numbers) {
             if (num < min) {
                 min = num;
             }
         }
-
+        
         variables.put(resultVar, min);
-        System.out.println("Minimum-Wert berechnet: " + resultVar + " = " + min);
+        System.out.println("Min-Funktion: Minimum von " + numbers + " = " + min + " -> gespeichert in " + resultVar);
     }
 
-    private static void processMinListFunctionStmt(SimpleParser.processMinListFunctionStmt ctx){
-        System.out.println("noch nicht aufgerufen");
+
+    private static void processMinListFunctionStmt(SimpleParser.MinListFunctionStmtContext ctx) {
+        String resultVar = ctx.IDENTIFIER(0).getText();
+        String listVar = ctx.IDENTIFIER(1).getText();
+        
+        System.out.println("Min-List-Funktion: Minimum von Variable '" + listVar + "' -> gespeichert in " + resultVar);
+        
+        // TODO: Implementieren wenn wir Variablen-Listen haben
+        // Für jetzt: Platzhalter
+        variables.put(resultVar, 0.0);
     }
 }

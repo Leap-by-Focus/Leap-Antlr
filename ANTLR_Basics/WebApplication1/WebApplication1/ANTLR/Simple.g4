@@ -230,7 +230,7 @@ numberList
     ;
 
 minListFunctionStmt
-    : 'var' IDENTIFIER '.' 'Min' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'Min' '(' (IDENTIFIER | numberList) ')'
     ;
 
 absFunctionStmt
