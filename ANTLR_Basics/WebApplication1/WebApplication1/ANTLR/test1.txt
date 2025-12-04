@@ -1,1 +1,1 @@
-Hallo Welt! Das ist ein Test.
+Das ist eine Testdatei!

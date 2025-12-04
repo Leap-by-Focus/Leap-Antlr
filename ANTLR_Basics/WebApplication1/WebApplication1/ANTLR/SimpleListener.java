@@ -71,6 +71,18 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ObjectCreationExpression}
+	 * labeled alternative in {@link SimpleParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterObjectCreationExpression(SimpleParser.ObjectCreationExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ObjectCreationExpression}
+	 * labeled alternative in {@link SimpleParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitObjectCreationExpression(SimpleParser.ObjectCreationExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ConstantExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree

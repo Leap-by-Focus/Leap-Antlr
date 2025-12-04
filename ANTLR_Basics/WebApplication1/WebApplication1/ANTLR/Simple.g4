@@ -1,6 +1,6 @@
 grammar Simple;
 
-//Basisstruktur
+// Basisstruktur
 program
     : (statement | line)+ EOF
     ;
@@ -10,23 +10,24 @@ statement
     | functionCall ';'
     ;
 
-//Variablenzuweisung
+// Variablenzuweisung
 assignment
     : IDENTIFIER '=' expression
     ;
 
-//Funktionsaufrufe
+// Funktionsaufrufe
 functionCall
     : IDENTIFIER '(' expression? ')'
     ;
 
-//Expressions
+// Expressions
 expression
     : expression addOp expression             #AdditiveExpression
     | expression multiOp expression           #MultiplicateExpression
     | '(' expression ')'                      #ParenthesizedExpression
     | constant                                #ConstantExpression
     | IDENTIFIER                              #IdentifierExpression
+    | 'new' IDENTIFIER '(' ')'                #ObjectCreationExpression
     ;
 
 addOp
@@ -43,22 +44,29 @@ constant
     : NUMBER
     | STRING
     | CHARACTER
+    | NULL
     ;
 
-//Token-Definitionen
+// Token-Definitionen
 NUMBER
     : [0-9]+ ('.' [0-9]+)?
+    | [0-9]+
     ;
 
 IDENTIFIER
     : [a-zA-Z_][a-zA-Z0-9_]*
     ;
 
+// AS_LONG als ein Token mit optionalem Whitespace
+AS_LONG: 'as' [ \t\r\n]* 'long';
+
+// 'from' als separates Token für LOOP
+FROM: 'from';
+
 WS
     : [ \t\r\n]+ -> skip
     ;
 
-//Rest
 line
     : statement
     | block
@@ -109,209 +117,209 @@ block: '{' line* '}';
 
 compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
-//Schleifen und Bedingungen
+// Schleifen und Bedingungen
 forStmt
-  : 'for' IDENTIFIER 'from' expr 'to' expr '{' line* '}'
-  ;
+    : 'for' IDENTIFIER 'from' expr 'to' expr '{' line* '}'
+    ;
 
 repeatStmt
-  : 'repeat' expr 'times' '{' line* '}'
-  ;
+    : 'repeat' expr 'times' '{' line* '}'
+    ;
 
 loopStmt
-  : 'loop from' expr 'to' expr '{' line* '}'
-  ;
+    : 'loop' 'from' expr 'to' expr '{' line* '}'
+    ;
 
 whileStmt
-  : 'while' expr compareOp expr '{' line* '}'
-  ;
+    : 'while' expr compareOp expr '{' line* '}'
+    ;
 
 expr
-  : NUMBER
-  | IDENTIFIER
-  | expr OP expr
-  ;
+    : NUMBER
+    | IDENTIFIER
+    | STRING
+    | expr OP expr
+    ;
 
 OP: '+' | '-' | '*' | '/' | '%';
 
 untilStmt
-  : 'until' expr compareOp expr '{' line* '}'
-  ;
+    : 'until' expr compareOp expr '{' line* '}'
+    ;
 
 asLongStmt
-  : 'as' 'long' 'as' expr customCompOp expr '{' line* '}'
+  : AS_LONG 'as' expr customCompOp expr '{' line* '}'
   ;
 
 customCompOp
-  : 'isBigger'
-  | 'isSmaller'
-  | 'isEqual'
-  | 'isNotEqual'
-  | 'isBiggerThan'
-  | 'isSmallerThan'
-  | 'isNotEqualThan'
-  ;
+    : 'isBigger'
+    | 'isSmaller'
+    | 'isEqual'
+    | 'isNotEqual'
+    | 'isBiggerThan'
+    | 'isSmallerThan'
+    | 'isNotEqualThan'
+    | '>'
+    | '<'
+    | '=='
+    | '>='
+    | '<='
+    | '!='
+    ;
 
 doWhileStmt
-  : 'do' '{' line* '}' 'while' expr customCompOp expr
-  ;
+    : 'do' '{' line* '}' 'while' expr customCompOp expr
+    ;
 
 repeatAsLongStmt
-  : 'repeat' '{' line* '}' 'as long' expr customCompOp expr
-  ;
+    : 'repeat' '{' line* '}' AS_LONG expr customCompOp expr
+    ;
 
 repeatUntilStmt
-  : 'repeat' '{' line* '}' 'until' expr customCompOp expr
-  ;
+    : 'repeat' '{' line* '}' 'until' expr customCompOp expr
+    ;
 
 doAsLongStmt
-  : 'do' '{' line* '}' 'as long' expr customCompOp expr
-  ;
+    : 'do' '{' line* '}' AS_LONG expr customCompOp expr
+    ;
 
-
-//File
+// File
 writeFileStmt
-  : 'var' IDENTIFIER '.' 'WriteFile' '(' STRING ')'
-  ;
+    : IDENTIFIER '.' 'WriteFile' '(' STRING ')' ';'
+    ;
 
 isNullStmt
-  : 'var' IDENTIFIER '.' 'IsNull' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'IsNull' '(' (IDENTIFIER | STRING) ')' ';'
+    ;
 
 existsStmt
-  : 'var' IDENTIFIER '.' 'Exists' '(' (STRING | IDENTIFIER) ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Exists' '(' (STRING | IDENTIFIER) ')' ';'
+    ;
 
 sleepStmt
-  : 'Sleep' '(' INTEGER ')'
-  ;
+    : 'Sleep' '(' NUMBER ')' ';'
+    ;
 
 readFileStmt
-  : IDENTIFIER '.' 'ReadFile' '(' STRING ')'
-  ;
+    : IDENTIFIER '.' 'ReadFile' '(' STRING ')' ';'
+    ;
 
 deleteFileStmt
-  : 'DeleteFile' '(' STRING ')'
-  ;
+    : 'DeleteFile' '(' STRING ')' ';'
+    ;
 
 createFolderStmt
-  : 'CreateFolder' '(' STRING ')'
-  ;
+    : 'CreateFolder' '(' STRING ')' ';'
+    ;
 
 deleteFolderStmt
-  : 'DeleteFolder' '(' STRING ')'
-  ;
+    : 'DeleteFolder' '(' STRING ')' ';'
+    ;
 
 openFileStmt
-  : 'OpenFile' '(' STRING ')'
-  ;
+    : 'OpenFile' '(' STRING ')' ';'
+    ;
 
-
-//Mathematische Funktionen
+// Mathematische Funktionen
 minExpr
-  : IDENTIFIER '.' 'Min' '(' numberList ')'        #minFunctionCall
-  ;
+    : IDENTIFIER '.' 'Min' '(' numberList ')' #minFunctionCall
+    ;
 
 numberList
-  : NUMBER (',' NUMBER)*
-  ;
+    : NUMBER (',' NUMBER)*
+    ;
 
 minListFunctionStmt
-  : 'var' IDENTIFIER '.' 'Min' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Min' '(' IDENTIFIER ')'
+    ;
 
 absFunctionStmt
-  : 'var' IDENTIFIER '.' 'Abs' '(' (NUMBER | IDENTIFIER) ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Abs' '(' (NUMBER | IDENTIFIER) ')'
+    ;
 
 sqrtFunctionStmt
-  : 'var' IDENTIFIER '.' 'Sqrt' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Sqrt' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
+    ;
 
 roundFunctionStmt
-  : 'var' IDENTIFIER '.' 'Round' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Round' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
+    ;
 
 randomFunctionStmt
-  : 'var' IDENTIFIER '.' 'Random' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Random' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
+    ;
 
 meanFunctionStmt
-  : 'var' IDENTIFIER '.' 'Mean' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Mean' '(' IDENTIFIER ')'
+    ;
 
 medianFunctionStmt
-  : 'var' IDENTIFIER '.' 'Median' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Median' '(' IDENTIFIER ')'
+    ;
 
 maxFunctionStmt
-  : 'var' IDENTIFIER '.' 'Max' '(' valueList ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Max' '(' valueList ')'
+    ;
 
 valueList
-  : (NUMBER | IDENTIFIER) (',' (NUMBER | IDENTIFIER))*
-  ;
+    : (NUMBER | IDENTIFIER) (',' (NUMBER | IDENTIFIER))*
+    ;
 
 maxFromListStmt
-  : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')'
+    ;
 
-// ==========================
-//  STRING-FUNKTIONEN
-// ==========================
-
+// String-Funktionen
 toLowerFunctionStmt
-  : 'var' IDENTIFIER '.' 'ToLower' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'ToLower' '(' IDENTIFIER ')'
+    ;
 
 toUpperFunctionStmt
-  : 'var' IDENTIFIER '.' 'ToUpper' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'ToUpper' '(' IDENTIFIER ')'
+    ;
 
 trimFunctionStmt
-  : 'var' IDENTIFIER '.' 'Trim' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Trim' '(' IDENTIFIER ')'
+    ;
 
 trimStartFunctionStmt
-  : 'var' IDENTIFIER '.' 'TrimStart' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'TrimStart' '(' IDENTIFIER ')'
+    ;
 
 trimEndFunctionStmt
-  : 'var' IDENTIFIER '.' 'TrimEnd' '(' IDENTIFIER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'TrimEnd' '(' IDENTIFIER ')'
+    ;
 
 replaceFunctionStmt
-  : 'var' IDENTIFIER '.' 'Replace' '(' IDENTIFIER ',' STRING ',' STRING ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Replace' '(' IDENTIFIER ',' STRING ',' STRING ')'
+    ;
 
 splitFunctionStmt
-  : 'var' IDENTIFIER'.' 'Split' '(' IDENTIFIER ',' STRING ')'
-  ;
+    : 'var' IDENTIFIER'.' 'Split' '(' IDENTIFIER ',' STRING ')'
+    ;
 
 leftFunctionStmt
-  : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' INTEGER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ')'
+    ;
 
 leftRangeFunctionStmt
-  : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' INTEGER ',' INTEGER ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ',' NUMBER ')'
+    ;
 
 concatFunctionStmt
-  : 'var' IDENTIFIER '.' 'Concat' '(' IDENTIFIER ',' IDENTIFIER ',' STRING ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Concat' '(' IDENTIFIER ',' IDENTIFIER ',' STRING ')'
+    ;
 
 containsFunctionStmt
-  : 'var' IDENTIFIER '.' 'Contains' '(' IDENTIFIER ',' STRING ')'
-  ;
+    : 'var' IDENTIFIER '.' 'Contains' '(' IDENTIFIER ',' STRING ')'
+    ;
 
 lengthAccess
-  : IDENTIFIER '.' 'Length'
-  ;
+    : IDENTIFIER '.' 'Length'
+    ;
 
-//Basics
-
+// Datentyp-Tokens
 BOOL: 'true' | 'false';
-INTEGER: [0-9]+;
 STRING: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 TEXT: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
 CHARACTER: '\'' (ESC | ~['\\]) '\'';

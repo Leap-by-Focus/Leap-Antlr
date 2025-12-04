@@ -1,4 +1,1 @@
-Zeile 1
-Zeile 2  
-Zeile 3
-Ende der Datei
+Zeile 1\nZeile 2\nZeile 3

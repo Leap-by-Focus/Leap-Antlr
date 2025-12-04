@@ -1,38 +1,13 @@
-// Einfacher WriteFile Test
-text1 = "Hallo Welt! Das ist ein Test.";
-var text1.WriteFile("test1.txt")
+// Test 19: OpenFile-Funktion
+print("=== OPENFILE-FUNKTION ===");
 
-// Mehrzeiliger Text
-text2 = "Zeile 1
-Zeile 2  
-Zeile 3
-Ende der Datei";
-var text2.WriteFile("test2.txt")
+// Datei erstellen
+testText = "Zeile 1: Hallo Welt\nZeile 2: Das ist ein Test\nZeile 3: Ende";
+testText.WriteFile("zu_oeffnen.txt");
 
-// ReadFile Test
-var gelesen1.ReadFile("test1.txt")
+// Datei öffnen/lesen
+print("Öffne Datei...");
+OpenFile("zu_oeffnen.txt");
 
-print("Gelesen aus test1.txt: " + gelesen1)
-
-var gelesen2.ReadFile("test2.txt")
-
-print("Gelesen aus test2.txt: " + gelesen2)
-
-// Einfache Ausgabe statt Vergleich
-print("Text1: " + text1)
-print("Gelesen1: " + gelesen1)
-
-// DeleteFile Test
-DeleteFile("test1.txt")
-
-print("test1.txt wurde gelöscht")
-
-// Mit Schleife kombinieren
-for i from 1 to 2 {
-    inhalt = "Das ist Datei Nummer " + i;
-    dateiname = "datei_" + i + ".txt";
-    var inhalt.WriteFile(dateiname)
-    print("Datei erstellt: " + dateiname)
-}
-
-print("File-Operationen abgeschlossen!")
+// Aufräumen
+DeleteFile("zu_oeffnen.txt");

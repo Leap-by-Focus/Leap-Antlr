@@ -1,0 +1,426 @@
+import org.antlr.v4.runtime.tree.*;
+import java.util.*;
+import java.nio.file.*;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+
+public class SimpleInterpreter extends SimpleBaseVisitor<Object> {
+
+    private final Map<String, Object> variables = new HashMap<>();
+    
+    // ===================================
+    // SPEICHERVERWALTUNG (PLATZHALTER)
+    // ===================================
+    private static class MemoryStats {
+        long totalAllocated;
+        int activeVariables;
+        int garbageCollected;
+    }
+    
+    private MemoryStats memoryStats = new MemoryStats();
+    private static final long MEMORY_LIMIT = 100 * 1024 * 1024;
+    private final List<WeakReference<Object>> allocatedObjects = new ArrayList<>();
+    
+    // Platzhalter für Memory-Methoden, damit der Code kompiliert
+    private long estimateMemoryUsage(Object obj) { return 16; }
+    private void trackMemoryBeforeAssignment(String varName, Object newValue) { /* Logik ausgelassen */ }
+    private void trackMemoryAfterAssignment(String varName, Object newValue) { /* Logik ausgelassen */ }
+    private void printMemoryStats() { /* Logik ausgelassen */ }
+    private void performGarbageCollection() { /* Logik ausgelassen */ }
+    private boolean isVariableReferenced(String varName) { return true; }
+    public void showFinalMemoryReport() { 
+        System.out.println("FINAL MEMORY REPORT:");
+        System.out.println("=======================");
+        System.out.println("Aktive Variablen: " + variables.size());
+        System.out.println("Total allokiert: 0 KB (simuliert)");
+        System.out.println("Garbage collected: 0 Variablen (simuliert)");
+        System.out.println("Memory Limit: 100 MB");
+        System.out.println("\nAktive Variablen:");
+        variables.forEach((k, v) -> System.out.println(" - " + k + " = " + v.toString().substring(0, Math.min(v.toString().length(), 20)) + "..."));
+        System.out.println();
+    }
+
+    // ===================================
+    // BASIS METHODEN
+    // ===================================
+    
+    @Override
+    public Object visitProgram(SimpleParser.ProgramContext ctx) {
+        System.out.println("=== START AUSFÜHRUNG ===");
+        visitChildren(ctx);
+        showFinalMemoryReport();
+        return null;
+    }
+
+    @Override
+    public Object visitBlock(SimpleParser.BlockContext ctx) {
+        for (SimpleParser.LineContext lineCtx : ctx.line()) {
+            visit(lineCtx);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitAssignment(SimpleParser.AssignmentContext ctx) {
+        String varName = ctx.IDENTIFIER().getText();
+        Object value = visit(ctx.expression());
+        
+        trackMemoryBeforeAssignment(varName, value);
+        variables.put(varName, value);
+        trackMemoryAfterAssignment(varName, value);
+
+        System.out.println("Variable gesetzt: " + varName + " = " + value);
+        printMemoryStats();
+        
+        return value;
+    }
+
+    // ===================================
+    // EXPRESSION UND KONSTANTEN (FEHLTEN BISHER)
+    // ===================================
+    
+    @Override
+    public Object visitConstantExpression(SimpleParser.ConstantExpressionContext ctx) {
+        // Delegiert die Auswertung an die konkrete Konstanten-Methode
+        return visit(ctx.constant());
+    }
+
+    @Override
+    public Object visitConstant(SimpleParser.ConstantContext ctx) {
+        
+        // 1. INTEGER (z.B. 10, 5)
+        //if (ctx.NUMBER() != null) {
+            // Konvertierung zu Double für konsistente Arithmetik
+            //return Double.parseDouble(ctx.NUMBER().getText());
+        //} 
+        
+        // 2. NUMBER (z.B. 3.5)
+        if (ctx.NUMBER() != null) {
+            return Double.parseDouble(ctx.NUMBER().getText());
+        } 
+        
+        // 3. STRING (z.B. "Hallo")
+        else if (ctx.STRING() != null) {
+            String text = ctx.STRING().getText();
+            // Entfernt die Anführungszeichen
+            return text.substring(1, text.length() - 1);
+        } 
+        
+        // 4. IDENTIFIER ACCESS (FEHLT IM PARSE TREE ABER GUT FÜR ZUKUNFT)
+        // ... weitere Typen wie CHARACTER, BOOL, NULL hier ergänzen ...
+        
+        throw new RuntimeException("Unbekannter Konstanter-Typ: " + ctx.getText());
+    }
+    
+    @Override
+    public Object visitIdentifierExpression(SimpleParser.IdentifierExpressionContext ctx) {
+        String varName = ctx.IDENTIFIER().getText();
+        if (!variables.containsKey(varName)) {
+            throw new RuntimeException("Variable nicht definiert: " + varName);
+        }
+        return variables.get(varName);
+    }
+
+    @Override
+    public Object visitParenthesizedExpression(SimpleParser.ParenthesizedExpressionContext ctx) {
+        return visit(ctx.expression());
+    }
+
+    @Override
+    public Object visitAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx) {
+        Object left = visit(ctx.expression(0));
+        Object right = visit(ctx.expression(1));
+        String operator = ctx.addOp().getText();
+
+        // String-Konkatenation
+        if (left instanceof String || right instanceof String) {
+            String leftStr = left.toString();
+            String rightStr = right.toString();
+            if (operator.equals("+")) {
+                return leftStr + rightStr;
+            } else {
+                throw new RuntimeException("Operator '-' ist für Strings nicht erlaubt.");
+            }
+        }
+
+        // Numerische Operation
+        double leftNum = toNumber(left);
+        double rightNum = toNumber(right);
+        return switch (operator) {
+            case "+" -> leftNum + rightNum;
+            case "-" -> leftNum - rightNum;
+            default -> throw new RuntimeException("Unbekannter Operator: " + operator);
+        };
+    }
+
+    @Override
+    public Object visitMultiplicateExpression(SimpleParser.MultiplicateExpressionContext ctx) {
+        Object left = visit(ctx.expression(0));
+        Object right = visit(ctx.expression(1));
+        String op = ctx.multiOp().getText();
+
+        double l = toNumber(left);
+        double r = toNumber(right);
+
+        return switch (op) {
+            case "*" -> l * r;
+            case "/" -> {
+                if (r == 0) throw new ArithmeticException("Division durch Null");
+                yield l / r;
+            }
+            default -> throw new RuntimeException("Unbekannter Operator: " + op);
+        };
+    }
+    
+    // ===================================
+    // FUNKTIONSAUFRUFE (FEHLTE BISHER)
+    // ===================================
+
+    @Override
+    public Object visitFunctionCall(SimpleParser.FunctionCallContext ctx) {
+        String functionName = ctx.IDENTIFIER().getText();
+        
+        if ("print".equals(functionName)) {
+            Object value = null;
+            if (ctx.expression() != null) {
+                value = visit(ctx.expression());
+                System.out.println("AUSGABE: " + value);
+            } else {
+                System.out.println(); // Leere Zeile
+            }
+            return value;
+        } else {
+            throw new RuntimeException("Unbekannte Funktion: " + functionName);
+        }
+    }
+
+
+    // ===================================
+    // KORRIGIERTE SCHLEIFEN-METHODEN
+    // (Verwenden alle 'ctx.block()' und 'ctx.expr(index)')
+    // ===================================
+    
+    @Override
+    public Object visitForStmt(SimpleParser.ForStmtContext ctx) {
+        String loopVar = ctx.IDENTIFIER().getText();
+        
+        Object startObj = evaluateSimpleExpr(ctx.expr(0));
+        Object endObj = evaluateSimpleExpr(ctx.expr(1));
+        
+        int start = ((Number) startObj).intValue();
+        int end = ((Number) endObj).intValue();
+
+        System.out.println("FOR-Schleife: " + loopVar + " von " + start + " bis " + end);
+        
+        for (int i = start; i <= end; i++) {
+            variables.put(loopVar, (double) i);
+            visit(ctx.block()); 
+        }
+
+        variables.remove(loopVar);
+        return null;
+    }
+
+    @Override
+    public Object visitRepeatStmt(SimpleParser.RepeatStmtContext ctx) {
+        Object timesObj = evaluateSimpleExpr(ctx.expr());
+        int times = ((Number) timesObj).intValue();
+
+        System.out.println("REPEAT: " + times + " mal");
+
+        for (int i = 1; i <= times; i++) {
+            visit(ctx.block());
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitLoopStmt(SimpleParser.LoopStmtContext ctx) {
+        Object startObj = evaluateSimpleExpr(ctx.expr(0));
+        Object endObj = evaluateSimpleExpr(ctx.expr(1));
+        int start = ((Number) startObj).intValue();
+        int end = ((Number) endObj).intValue();
+
+        System.out.println("LOOP: von " + start + " bis " + end);
+
+        for (int i = start; i <= end; i++) {
+            visit(ctx.block());
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitWhileStmt(SimpleParser.WhileStmtContext ctx) {
+        System.out.println("WHILE-Schleife gestartet");
+
+        while (evaluateWhileCondition(ctx.expr(0), ctx.compareOp(), ctx.expr(1))) {
+            visit(ctx.block());
+        }
+
+        System.out.println("WHILE-Schleife beendet");
+        return null;
+    }
+    
+    @Override
+    public Object visitUntilStmt(SimpleParser.UntilStmtContext ctx) {
+        System.out.println("=== UNTIL SCHLEIFE ===");
+        int iteration = 0;
+
+        while (!evaluateWhileCondition(ctx.expr(0), ctx.compareOp(), ctx.expr(1))) {
+            visit(ctx.block());
+            iteration++;
+        }
+
+        System.out.println("UNTIL-Schleife beendet nach " + iteration + " Iterationen");
+        return null;
+    }
+    
+    @Override
+    public Object visitAsLongStmt(SimpleParser.AsLongStmtContext ctx) {
+        System.out.println("=== AS-LONG SCHLEIFE ===");
+        int iteration = 0;
+
+        while (evaluateCustomCondition(ctx.expr(0), ctx.customCompOp(), ctx.expr(1))) {
+            visit(ctx.block());
+            iteration++;
+        }
+
+        System.out.println("AS-LONG-Schleife beendet nach " + iteration + " Iterationen");
+        return null;
+    }
+    
+    @Override
+    public Object visitDoWhileStmt(SimpleParser.DoWhileStmtContext ctx) {
+        System.out.println("=== DO-WHILE SCHLEIFE ===");
+        int iteration = 0;
+
+        do {
+            visit(ctx.block());
+            iteration++;
+        } while (evaluateCustomCondition(ctx.expr(0), ctx.customCompOp(), ctx.expr(1)));
+
+        System.out.println("DO-WHILE-Schleife beendet nach " + iteration + " Iterationen");
+        return null;
+    }
+    
+    // ... (Weitere Schleifen wie RepeatAsLongStmt, RepeatUntilStmt, DoAsLongStmt verwenden ähnliche Strukturen) ...
+    
+    // ===================================
+    // HILFSMETHODEN
+    // ===================================
+    
+    /** Konvertiert ein Objekt zu einem Double. Nur für Arithmetik gedacht. */
+    private double toNumber(Object obj) {
+        if (obj instanceof Number) return ((Number) obj).doubleValue();
+        if (obj instanceof String s) {
+            try {
+                return Double.parseDouble(s);
+            } catch (NumberFormatException e) {
+                // Bei Strings, die keine Zahl sind, ist es kein numerischer Wert
+                throw new RuntimeException("Kein numerischer Wert (oder ungültiger String-Wert) für Arithmetik: " + obj);
+            }
+        }
+        throw new RuntimeException("Kein numerischer Wert: " + obj);
+    }
+    
+    /** Evaluiert die einfache 'expr'-Regel für Schleifenzähler/Limits. */
+    private Object evaluateSimpleExpr(SimpleParser.ExprContext expr) {
+    
+        // ANTLR-Helper-Methoden prüfen, ob das Token vorhanden ist:
+        if (expr.NUMBER() != null) {
+            return Double.parseDouble(expr.NUMBER().getText());
+        }
+        
+        // ANMERKUNG: WENN expr.INTEGER() NICHT EXISTIERT (FEHLER 1A), MUSS HIER 
+        // AUF EINE GENERISCHERE METHODE WIE expr.getToken(INTEGER, 0) ZURÜCKGEGRIFFEN WERDEN.
+        // Aber gehen wir davon aus, dass Sie die Grammatik repariert haben (Problem 1A).
+        //if (expr.INTEGER() != null) { 
+            //return Double.parseDouble(expr.INTEGER().getText());
+        //}
+        
+        if (expr.IDENTIFIER() != null) {
+            String varName = expr.IDENTIFIER().getText();
+            if (!variables.containsKey(varName)) {
+                throw new RuntimeException("Variable nicht definiert: " + varName);
+            }
+            return variables.get(varName);
+        }
+        
+        // Handhabung von expr OP expr (einfache Arithmetik im Schleifenkopf)
+        if (expr.getChildCount() == 3) {
+            Object left = evaluateSimpleExpr((SimpleParser.ExprContext) expr.getChild(0));
+            Object right = evaluateSimpleExpr((SimpleParser.ExprContext) expr.getChild(2));
+            String operator = expr.getChild(1).getText();
+            
+            if (left instanceof Number && right instanceof Number) {
+                double l = ((Number) left).doubleValue();
+                double r = ((Number) right).doubleValue();
+                
+                // Korrigierte KLASSISCHE SWITCH ANWEISUNG (Problem 2)
+                switch (operator) {
+                    case "+": return l + r;
+                    case "-": return l - r;
+                    case "*": return l * r;
+                    case "/": {
+                        if (r == 0) throw new ArithmeticException("Division durch Null");
+                        return l / r;
+                    }
+                    case "%": return l % r;
+                    default: throw new RuntimeException("Unbekannter Operator: " + operator);
+                }
+            }
+        }
+        
+        throw new RuntimeException("Unbekannter Expression-Typ (in Schleifenkopf): " + expr.getText());
+    }
+    
+    /** Evaluiert die 'while'-Bedingungen (Standard-Operatoren). */
+    private boolean evaluateWhileCondition(SimpleParser.ExprContext left, 
+                                           SimpleParser.CompareOpContext op, 
+                                           SimpleParser.ExprContext right) {
+        Object leftVal = evaluateSimpleExpr(left);
+        Object rightVal = evaluateSimpleExpr(right);
+        String operator = op.getText();
+        
+        if (leftVal instanceof Number && rightVal instanceof Number) {
+             double l = ((Number) leftVal).doubleValue();
+             double r = ((Number) rightVal).doubleValue();
+             return switch (operator) {
+                 case "==" -> l == r;
+                 case "!=" -> l != r;
+                 case "<" -> l < r;
+                 case "<=" -> l <= r;
+                 case ">" -> l > r;
+                 case ">=" -> l >= r;
+                 default -> throw new RuntimeException("Unbekannter Vergleichsoperator: " + operator);
+             };
+         }
+        // ... (Logik für String-Vergleiche hier ergänzen) ...
+        throw new RuntimeException("Inkompatible Typen für Vergleich: " + leftVal + " " + operator + " " + rightVal);
+    }
+    
+    /** Evaluiert die 'as long' und 'do while'-Bedingungen (Custom-Operatoren). */
+    private boolean evaluateCustomCondition(SimpleParser.ExprContext left, 
+                                            SimpleParser.CustomCompOpContext op, 
+                                            SimpleParser.ExprContext right) {
+        Object leftVal = evaluateSimpleExpr(left);
+        Object rightVal = evaluateSimpleExpr(right);
+        String operator = op.getText();
+        
+        if (leftVal instanceof Number && rightVal instanceof Number) {
+            double l = ((Number) leftVal).doubleValue();
+            double r = ((Number) rightVal).doubleValue();
+            return switch (operator) {
+                case ">", "isBigger", "isBiggerThan" -> l > r;
+                case "<", "isSmaller", "isSmallerThan" -> l < r;
+                case "==", "isEqual" -> l == r;
+                case ">=" -> l >= r;
+                case "<=" -> l <= r;
+                case "!=", "isNotEqual", "isNotEqualThan" -> l != r;
+                default -> throw new RuntimeException("Unbekannter Custom-Operator: " + operator);
+            };
+        }
+        throw new RuntimeException("Inkompatible Typen für Custom-Vergleich: " + leftVal + " " + operator + " " + rightVal);
+    }
+
+}
