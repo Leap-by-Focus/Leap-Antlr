@@ -1,5 +1,10 @@
 grammar Simple;
 
+//--Notizen--
+//Grammatik für Listen notwendig
+// bis dahin explizite Listen
+// Garbage Collection "aktivieren"
+
 // Basisstruktur
 program
     : (statement | line)+ EOF

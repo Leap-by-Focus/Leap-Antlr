@@ -4,7 +4,6 @@ import java.util.*;
 import java.nio.file.*;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import static SimpleLexer.COMMA;
 
 public class SimpleExecutor {
     
@@ -1600,7 +1599,7 @@ public class SimpleExecutor {
     }
 
 
-    //Mathematische Funktionen
+    // ===Mathematische Funktionen===
 
 
     private static void processMinExpr(SimpleParser.MinExprContext ctx) {
@@ -1743,7 +1742,7 @@ public class SimpleExecutor {
 
     
     // Hilfsmethode zur Extraktion eines numerischen Arguments aus einem ParseTree-Knoten, 
-    // wenn dieser entweder NUMBER oder IDENTIFIER ist.
+    // wenn dieser entweder NUMBER oder IDENTIFIER ist
  
     private static double extractNumericArgument(ParseTree node) {
         if (node instanceof TerminalNode terminal) {
@@ -1920,9 +1919,10 @@ public class SimpleExecutor {
 
     private static void processMaxFunctionStmt(SimpleParser.MaxFunctionStmtContext ctx) {
         
-        String resultVarName = ctx.IDENTIFIER().get(0).getText(); 
+        TerminalNode targetNode = (TerminalNode) ctx.getChild(1);
+        String resultVarName = targetNode.getText(); 
         
-        ParseTree argNodeContent = ctx.getChild(4); 
+        ParseTree argNodeContent = ctx.getChild(5); 
         
         if (!(argNodeContent instanceof SimpleParser.ValueListContext valueListCtx)) {
             throw new RuntimeException("Max-Funktion benötigt eine Liste von Werten.");
@@ -1940,12 +1940,15 @@ public class SimpleExecutor {
 
         trackMemoryBeforeAssignment(resultVarName, maxResult);
         variables.put(resultVarName, maxResult);
-        
         trackMemoryAfterAssignment(resultVarName, maxResult); 
         
         System.out.println("MAXFUNCTION (Explizit): Max von " + dataList + " -> " + resultVarName + " = " + maxResult);
         printMemoryStats();
     }
+
+    //es gab da einige Probleme
+    //1. processMaxFromListStmt
+    // 2. extractValuesFromValueList (COMMA durch 46 ersetzen)
 
     private static void processMaxFromListStmt(SimpleParser.MaxFromListStmtContext ctx) {
         
@@ -1988,7 +1991,7 @@ public class SimpleExecutor {
             ParseTree child = ctx.getChild(i);
             
             if (child instanceof TerminalNode terminal) {
-                if (terminal.getSymbol().getType() == SimpleLexer.COMMA) { 
+                if (terminal.getSymbol().getType() == 46) { //COMMA
                     continue;
                 }
                 

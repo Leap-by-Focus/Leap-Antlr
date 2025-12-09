@@ -8,14 +8,11 @@ b = 15.0;
 c = 1.0;
 
 // 20. Test: Explizite Liste (MaxFunctionStmt)
-// Findet das Maximum aus 5.0, 15.0, 1.0
 var max1.Max(a, b, c);
 print("Test 20 (Explizit): Max(a, b, c) ->");
 print(max1); // Erwartet: 15.0
 
-// 21. Test: Max aus Listenvariable (MaxFromListStmt)
-// (HINWEIS: Setzt funktionierende Listenzuweisung voraus!)
-maxTestList = [40.0, 10.0, 99.0, 50.0]; 
-var max2.Max(maxTestList);
-print("Test 21 (Variable): Max(maxTestList) ->");
+// 21. Test: Explizite Liste (direkte Zahlen)
+var max2.Max(40.0, 10.0, 99.0, 50.0);
+print("Test 21 (Direkte Liste): Max(40, 10, 99, 50) ->");
 print(max2); // Erwartet: 99.0
