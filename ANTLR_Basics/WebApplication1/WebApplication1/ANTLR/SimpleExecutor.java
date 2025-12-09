@@ -4,6 +4,7 @@ import java.util.*;
 import java.nio.file.*;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import static SimpleLexer.COMMA;
 
 public class SimpleExecutor {
     
@@ -164,6 +165,34 @@ public class SimpleExecutor {
         }
         else if (tree instanceof SimpleParser.MinListFunctionStmtContext) {
             processMinListFunctionStmt((SimpleParser.MinListFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.AbsFunctionStmtContext){
+            processAbsFunctionStmt((SimpleParser.AbsFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.AbsFunctionStmtContext) {
+            processAbsFunctionStmt((SimpleParser.AbsFunctionStmtContext) tree);
+        }
+        // Erweiterung für Sqrt-Funktion
+        else if (tree instanceof SimpleParser.SqrtFunctionStmtContext) {
+            processSqrtFunctionStmt((SimpleParser.SqrtFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.RoundFunctionStmtContext) {
+            processRoundFunctionStmt((SimpleParser.RoundFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.RandomFunctionStmtContext) {
+            processRandomFunctionStmt((SimpleParser.RandomFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.MeanFunctionStmtContext) {
+            processMeanFunctionStmt((SimpleParser.MeanFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.MedianFunctionStmtContext) {
+            processMedianFunctionStmt((SimpleParser.MedianFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.MaxFunctionStmtContext) {
+            processMaxFunctionStmt((SimpleParser.MaxFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.MaxFromListStmtContext) {
+            processMaxFromListStmt((SimpleParser.MaxFromListStmtContext) tree);
         }
     }
     
@@ -1371,6 +1400,15 @@ public class SimpleExecutor {
             System.out.println("Objekt erstellt: " + type);
             return "new " + type + "()";
         }
+        else if (expr instanceof SimpleParser.UnaryMinusExpressionContext unaryExpr){
+            Object val = evaluateExpression(unaryExpr.expression());
+
+            if (val instanceof Number){
+                return -((Number) val).doubleValue();
+            } else {
+                throw new RuntimeException("Unäres Minus nur für Zahlen erlaubt: " + val);
+            }
+        }
         
         throw new RuntimeException("Unbekannter Expression-Typ: " + expr.getClass().getSimpleName());
     }
@@ -1598,13 +1636,377 @@ public class SimpleExecutor {
 
 
     private static void processMinListFunctionStmt(SimpleParser.MinListFunctionStmtContext ctx) {
+        // Erste IDENTIFIER ist die Ergebnisvariable
         String resultVar = ctx.IDENTIFIER(0).getText();
-        String listVar = ctx.IDENTIFIER(1).getText();
         
-        System.out.println("Min-List-Funktion: Minimum von Variable '" + listVar + "' -> gespeichert in " + resultVar);
+        System.out.println("DEBUG: Processing MinListFunctionStmt: resultVar = " + resultVar);
+        System.out.println("DEBUG: Children count: " + ctx.getChildCount());
         
-        // TODO: Implementieren wenn wir Variablen-Listen haben
-        // Für jetzt: Platzhalter
-        variables.put(resultVar, 0.0);
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            System.out.println("  Child " + i + ": " + child.getClass().getSimpleName() + " -> '" + child.getText() + "'");
+        }
+        
+        // Suche nach numberList
+        List<Double> numbers = new ArrayList<>();
+        
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            if (child instanceof SimpleParser.NumberListContext) {
+                SimpleParser.NumberListContext numberList = (SimpleParser.NumberListContext) child;
+                System.out.println("DEBUG: Found numberList with " + numberList.NUMBER().size() + " numbers");
+                
+                // Sammle alle Zahlen
+                for (TerminalNode numberNode : numberList.NUMBER()) {
+                    numbers.add(Double.parseDouble(numberNode.getText()));
+                }
+                break;
+            }
+        }
+        
+        if (numbers.isEmpty()) {
+            System.out.println("DEBUG: No numberList found, looking for IDENTIFIER");
+            // Vielleicht ist es ein Identifier (später implementieren)
+            variables.put(resultVar, 0.0);
+            System.out.println("Min-Funktion (Platzhalter): -> gespeichert in " + resultVar);
+            return;
+        }
+        
+        // Berechne Minimum
+        double min = numbers.get(0);
+        for (double num : numbers) {
+            if (num < min) {
+                min = num;
+            }
+        }
+        
+        variables.put(resultVar, min);
+        System.out.println("Min-Funktion: Minimum von " + numbers + " = " + min + " -> gespeichert in " + resultVar);
+    }
+
+    private static void processAbsFunctionStmt(SimpleParser.AbsFunctionStmtContext ctx){
+        String resultVar = ctx.IDENTIFIER().get(0).getText();
+        
+        ParseTree argNode = ctx.getChild(4);
+
+        Object argValue = null;
+
+        if (ctx.NUMBER() != null) {
+            argValue = Double.parseDouble(ctx.NUMBER().getText());
+        } else if (ctx.IDENTIFIER().size() > 1) {
+            String varName = ctx.IDENTIFIER().get(1).getText();
+            if (!variables.containsKey(varName)) {
+                throw new RuntimeException("Variable nicht definiert: " + varName);
+            }
+            argValue = variables.get(varName);
+        } else {
+            throw new RuntimeException("Ungültiges Argument für Abs-Funktion");
+        }
+        if (!(argValue instanceof Number)) {
+            throw new RuntimeException("Abs-Funktion benötigt eine Zahl als Argument");
+        }
+
+        double value = ((Number) argValue).doubleValue();
+        double result = Math.abs(value);
+
+        trackMemoryBeforeAssignment(resultVar, result);
+        variables.put(resultVar, result);
+        trackMemoryAfterAssignment(resultVar, result);
+
+        System.out.println("Abs-Funktion: |" + value + "| = " + result + " -> gespeichert in " + resultVar);
+        printMemoryStats();
+    }
+
+    private static void processSqrtFunctionStmt(SimpleParser.SqrtFunctionStmtContext ctx) {
+    
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        ParseTree arg1Node = ctx.getChild(5); // Basis
+        ParseTree arg2Node = ctx.getChild(7); // Exponent
+
+        if (arg1Node == null || arg2Node == null || arg1Node.getText().equals(",")) {
+            throw new RuntimeException("Potenzfunktion Sqrt benötigt zwei numerische Argumente (Basis und Exponent).");
+        }
+
+        double basis = extractNumericArgument(arg1Node);
+        double exponent = extractNumericArgument(arg2Node);
+        
+        double result = Math.pow(basis, exponent); 
+        
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("POTENZFUNCTION (Sqrt): " + basis + "^" + exponent + " -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    
+    // Hilfsmethode zur Extraktion eines numerischen Arguments aus einem ParseTree-Knoten, 
+    // wenn dieser entweder NUMBER oder IDENTIFIER ist.
+ 
+    private static double extractNumericArgument(ParseTree node) {
+        if (node instanceof TerminalNode terminal) {
+            if (terminal.getSymbol().getType() == SimpleParser.NUMBER) {
+                return Double.parseDouble(terminal.getText());
+            } else if (terminal.getSymbol().getType() == SimpleParser.IDENTIFIER) {
+                String varName = terminal.getText();
+                if (!variables.containsKey(varName)) {
+                    throw new RuntimeException("Variable nicht definiert: " + varName);
+                }
+                Object value = variables.get(varName);
+                if (!(value instanceof Number)) {
+                    throw new RuntimeException("Potenzargument ist nicht numerisch: " + varName);
+                }
+                return ((Number) value).doubleValue();
+            }
+        }
+        throw new RuntimeException("Ungültiger Argumenttyp für Potenzfunktion: " + node.getText());
+    }
+
+    private static void processRoundFunctionStmt(SimpleParser.RoundFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        ParseTree arg1Node = ctx.getChild(5); // Zu rundender Wert
+        ParseTree arg2Node = ctx.getChild(7); // Dezimalstellen (n)
+
+        if (arg1Node == null || arg2Node == null) {
+            throw new RuntimeException("Round-Funktion benötigt zwei numerische Argumente (Wert und Dezimalstellen).");
+        }
+
+        double valueToRound = extractNumericArgument(arg1Node);
+        double decimalsDouble = extractNumericArgument(arg2Node);
+
+        if (decimalsDouble % 1 != 0 || decimalsDouble < 0) {
+            throw new RuntimeException("Die Anzahl der Dezimalstellen muss eine nicht-negative Ganzzahl sein.");
+        }
+        int decimals = (int) decimalsDouble; 
+        
+        double factor = Math.pow(10, decimals);
+        
+        // Beispiel: round(1.2345, 2)
+        // a) Skalieren: 1.2345 * 100 = 123.45
+        // b) Runden: Math.round(123.45) = 123
+        // c) Zurückskalieren: 123 / 100 = 1.23
+        double scaledValue = valueToRound * factor;
+        double roundedScaled = Math.round(scaledValue);
+        double result = roundedScaled / factor;
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("ROUNDFUNCTION: Round(" + valueToRound + ", " + decimals + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processRandomFunctionStmt(SimpleParser.RandomFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        ParseTree arg1Node = ctx.getChild(5); // Minimum (Min)
+        ParseTree arg2Node = ctx.getChild(7); // Maximum (Max)
+
+        if (arg1Node == null || arg2Node == null) {
+            throw new RuntimeException("Random-Funktion benötigt zwei numerische Argumente (MIN und MAX).");
+        }
+
+        double min = extractNumericArgument(arg1Node);
+        double max = extractNumericArgument(arg2Node);
+
+        if (min >= max) {
+            throw new RuntimeException("MIN-Wert (" + min + ") muss kleiner als MAX-Wert (" + max + ") sein.");
+        }
+
+        double range = max - min;
+        double result = Math.random() * range + min;
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("RANDOMFUNCTION: Random zwischen [" + min + ", " + max + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static List<Double> getListArgument(ParseTree argNode) {
+        
+        if (argNode instanceof SimpleParser.NumberListContext numberListCtx) {
+            List<Double> list = new ArrayList<>();
+            
+            for (TerminalNode num : numberListCtx.NUMBER()) {
+                list.add(Double.parseDouble(num.getText()));
+            }
+            return list;
+        } 
+        
+        else if (argNode instanceof TerminalNode terminal && terminal.getSymbol().getType() == SimpleParser.IDENTIFIER) {
+            String varName = terminal.getText();
+            if (!variables.containsKey(varName)) {
+                throw new RuntimeException("Liste nicht definiert: " + varName);
+            }
+            
+            Object listObject = variables.get(varName);
+            
+            if (listObject instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof Number) {
+                return (List<Double>) listObject;
+            } else {
+                throw new RuntimeException("Variable '" + varName + "' enthält keine Liste von Zahlen.");
+            }
+        }
+        
+        throw new RuntimeException("Ungültiges Argumentformat für Listenfunktion: " + argNode.getText());
+    }
+
+    private static void processMeanFunctionStmt(SimpleParser.MeanFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        ParseTree argNodeContent = ctx.getChild(5); 
+        
+        List<Double> dataList = getListArgument(argNodeContent);
+
+        if (dataList.isEmpty()) {
+            throw new RuntimeException("Mean-Funktion erfordert eine nicht-leere Liste von Zahlen.");
+        }
+        
+        double sum = 0;
+        for (double value : dataList) {
+            sum += value;
+        }
+        
+        double meanResult = sum / dataList.size();
+
+        trackMemoryBeforeAssignment(resultVarName, meanResult);
+        variables.put(resultVarName, meanResult);
+        trackMemoryAfterAssignment(resultVarName, meanResult);
+        
+        System.out.println("MEANFUNCTION: Mean von " + dataList + " berechnet -> " + resultVarName + " = " + meanResult);
+        printMemoryStats();
+    }
+
+    private static void processMedianFunctionStmt(SimpleParser.MedianFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        ParseTree argNodeContent = ctx.getChild(5); 
+        List<Double> dataList = getListArgument(argNodeContent);
+
+        if (dataList.isEmpty()) {
+            throw new RuntimeException("Median-Funktion erfordert eine nicht-leere Liste von Zahlen.");
+        }
+        
+        Collections.sort(dataList); 
+        
+        double medianResult;
+        int size = dataList.size();
+        
+        if (size % 2 == 1) {
+            medianResult = dataList.get(size / 2);
+        } else {
+            double middle1 = dataList.get(size / 2 - 1);
+            double middle2 = dataList.get(size / 2);
+            medianResult = (middle1 + middle2) / 2.0;
+        }
+
+        trackMemoryBeforeAssignment(resultVarName, medianResult);
+        variables.put(resultVarName, medianResult);
+        trackMemoryAfterAssignment(resultVarName, medianResult);
+        
+        System.out.println("MEDIANFUNCTION: Median von " + dataList + " berechnet -> " + resultVarName + " = " + medianResult);
+        printMemoryStats();
+    }
+
+    private static void processMaxFunctionStmt(SimpleParser.MaxFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText(); 
+        
+        ParseTree argNodeContent = ctx.getChild(4); 
+        
+        if (!(argNodeContent instanceof SimpleParser.ValueListContext valueListCtx)) {
+            throw new RuntimeException("Max-Funktion benötigt eine Liste von Werten.");
+        }
+
+        List<Double> dataList = extractValuesFromValueList(valueListCtx);
+
+        if (dataList.isEmpty()) {
+            throw new RuntimeException("Max-Funktion benötigt mindestens ein Argument.");
+        }
+        
+        double maxResult = dataList.stream()
+                                .max(Double::compare)
+                                .orElseThrow(() -> new RuntimeException("Fehler beim Finden des Maximums."));
+
+        trackMemoryBeforeAssignment(resultVarName, maxResult);
+        variables.put(resultVarName, maxResult);
+        
+        trackMemoryAfterAssignment(resultVarName, maxResult); 
+        
+        System.out.println("MAXFUNCTION (Explizit): Max von " + dataList + " -> " + resultVarName + " = " + maxResult);
+        printMemoryStats();
+    }
+
+    private static void processMaxFromListStmt(SimpleParser.MaxFromListStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 2) {
+            throw new RuntimeException("MaxFromList benötigt einen Listen-Identifier als Argument.");
+        }
+        String listVarName = ctx.IDENTIFIER().get(1).getText();
+        
+        if (!variables.containsKey(listVarName)) {
+            throw new RuntimeException("Liste nicht definiert: " + listVarName);
+        }
+        
+        Object listObject = variables.get(listVarName);
+        
+        if (!(listObject instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof Number)) {
+            throw new RuntimeException("Variable '" + listVarName + "' enthält keine nicht-leere Liste von Zahlen.");
+        }
+        
+        List<Double> dataList = (List<Double>) listObject;
+
+        double maxResult = dataList.stream()
+                                .max(Double::compare)
+                                .orElseThrow(() -> new RuntimeException("Fehler beim Finden des Maximums."));
+
+        trackMemoryBeforeAssignment(resultVarName, maxResult);
+        variables.put(resultVarName, maxResult);
+        
+        trackMemoryAfterAssignment(resultVarName, maxResult); 
+        
+        System.out.println("MAXFUNCTION (Variable): Max von " + listVarName + " -> " + resultVarName + " = " + maxResult);
+        printMemoryStats();
+    }
+
+    private static List<Double> extractValuesFromValueList(SimpleParser.ValueListContext ctx) {
+        List<Double> list = new ArrayList<>();
+        
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            
+            if (child instanceof TerminalNode terminal) {
+                if (terminal.getSymbol().getType() == SimpleLexer.COMMA) { 
+                    continue;
+                }
+                
+                if (terminal.getSymbol().getType() == SimpleParser.NUMBER) {
+                    list.add(Double.parseDouble(terminal.getText()));
+                } else if (terminal.getSymbol().getType() == SimpleParser.IDENTIFIER) {
+                    String varName = terminal.getText();
+                    if (!variables.containsKey(varName)) {
+                        throw new RuntimeException("Variable nicht definiert: " + varName);
+                    }
+                    Object value = variables.get(varName);
+                    if (!(value instanceof Number)) {
+                        throw new RuntimeException("Max-Argument '" + varName + "' ist nicht numerisch.");
+                    }
+                    list.add(((Number) value).doubleValue());
+                }
+            }
+        }
+        return list;
     }
 }

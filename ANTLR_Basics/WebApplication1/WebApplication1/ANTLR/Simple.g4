@@ -22,7 +22,8 @@ functionCall
 
 // Expressions
 expression
-    : expression addOp expression             #AdditiveExpression
+    : '-' expression                          #UnaryMinusExpression
+    | expression addOp expression             #AdditiveExpression
     | expression multiOp expression           #MultiplicateExpression
     | '(' expression ')'                      #ParenthesizedExpression
     | constant                                #ConstantExpression
@@ -30,16 +31,19 @@ expression
     | 'new' IDENTIFIER '(' ')'                #ObjectCreationExpression
     ;
 
+// addieren und subtrahieren
 addOp
     : '+'
     | '-'
     ;
 
+// multiplizieren und dividieren
 multiOp
     : '*'
     | '/'
     ;
 
+// Datentypen
 constant
     : NUMBER
     | STRING
@@ -115,21 +119,27 @@ line
 
 block: '{' line* '}';
 
+// Vergleichsoperatoren
 compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
 // Schleifen und Bedingungen
+
+// erledigt -> for-Schleife
 forStmt
     : 'for' IDENTIFIER 'from' expr 'to' expr '{' line* '}'
     ;
 
+// erledigt -> repeat-Schleife
 repeatStmt
     : 'repeat' expr 'times' '{' line* '}'
     ;
 
+// erledigt -> loop-Schleife
 loopStmt
     : 'loop' 'from' expr 'to' expr '{' line* '}'
     ;
 
+// erledigt -> while-Schleife
 whileStmt
     : 'while' expr compareOp expr '{' line* '}'
     ;
@@ -143,14 +153,18 @@ expr
 
 OP: '+' | '-' | '*' | '/' | '%';
 
+// erledigt -> until-Schleife
 untilStmt
     : 'until' expr compareOp expr '{' line* '}'
     ;
 
+// erledigt -> as-long-Schleife
 asLongStmt
   : AS_LONG 'as' expr customCompOp expr '{' line* '}'
   ;
 
+
+// muss noch implementiert werden
 customCompOp
     : 'isBigger'
     | 'isSmaller'
@@ -167,98 +181,121 @@ customCompOp
     | '!='
     ;
 
+// erledigt -> do-while-Schleife
 doWhileStmt
     : 'do' '{' line* '}' 'while' expr customCompOp expr
     ;
 
+// erledigt -> repeat-as-Long-Schleife
 repeatAsLongStmt
     : 'repeat' '{' line* '}' AS_LONG expr customCompOp expr
     ;
 
+// erledigt -> repeat-until-Schleife
 repeatUntilStmt
     : 'repeat' '{' line* '}' 'until' expr customCompOp expr
     ;
 
+// erledigt -> do-as-Long-Schleife
 doAsLongStmt
     : 'do' '{' line* '}' AS_LONG expr customCompOp expr
     ;
 
 // File
+
+// erledigt -> Datei schreiben
 writeFileStmt
     : IDENTIFIER '.' 'WriteFile' '(' STRING ')' ';'
     ;
 
+// erledigt -> ist null
 isNullStmt
     : 'var' IDENTIFIER '.' 'IsNull' '(' (IDENTIFIER | STRING) ')' ';'
     ;
 
+// erledigt -> Datei existiert
 existsStmt
     : 'var' IDENTIFIER '.' 'Exists' '(' (STRING | IDENTIFIER) ')' ';'
     ;
 
+// erledigt -> schlafen
 sleepStmt
     : 'Sleep' '(' NUMBER ')' ';'
     ;
 
+// erledigt -> Datei lesen
 readFileStmt
     : IDENTIFIER '.' 'ReadFile' '(' STRING ')' ';'
     ;
 
+// erledigt -> Datei löschen
 deleteFileStmt
     : 'DeleteFile' '(' STRING ')' ';'
     ;
 
+// erledigt -> Ordner erstellen
 createFolderStmt
     : 'CreateFolder' '(' STRING ')' ';'
     ;
 
+// erledigt -> Ordner löschen
 deleteFolderStmt
     : 'DeleteFolder' '(' STRING ')' ';'
     ;
 
+// erledigt -> Datei öffnen
 openFileStmt
     : 'OpenFile' '(' STRING ')' ';'
     ;
 
 // Mathematische Funktionen
+
+// erledigt -> kleinste Zahl 
 minExpr
-    : IDENTIFIER '.' 'Min' '(' numberList ')' #minFunctionCall
+    : IDENTIFIER '.' 'Min' '(' numberList ')' ';' #minFunctionCall
     ;
 
 numberList
     : NUMBER (',' NUMBER)*
     ;
 
+// erledigt -> kleineste Zahl aus Liste
 minListFunctionStmt
-    : 'var' IDENTIFIER '.' 'Min' '(' (IDENTIFIER | numberList) ')'
+    : 'var' IDENTIFIER '.' 'Min' '(' (IDENTIFIER | numberList) ')' ';'
     ;
 
+// erledigt -> Absolutwert (immer positiv)
 absFunctionStmt
-    : 'var' IDENTIFIER '.' 'Abs' '(' (NUMBER | IDENTIFIER) ')'
+    : 'var' IDENTIFIER '.' 'Abs' '(' (NUMBER | IDENTIFIER) ')' ';'
     ;
 
+// erledigt -> Quadratwurzel
 sqrtFunctionStmt
-    : 'var' IDENTIFIER '.' 'Sqrt' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
+    : 'var' IDENTIFIER '.' 'Sqrt' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
     ;
 
+// erledigt -> Runden
 roundFunctionStmt
-    : 'var' IDENTIFIER '.' 'Round' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
+    : 'var' IDENTIFIER '.' 'Round' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
     ;
 
+// erledigt -> Zufallszahl
 randomFunctionStmt
-    : 'var' IDENTIFIER '.' 'Random' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')'
+    : 'var' IDENTIFIER '.' 'Random' '(' (NUMBER | IDENTIFIER) ',' (NUMBER | IDENTIFIER) ')' ';'
     ;
 
+// erledigt -> Durchschnitt (Mittelwert)
 meanFunctionStmt
-    : 'var' IDENTIFIER '.' 'Mean' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'Mean' '(' (IDENTIFIER | numberList) ')' ';'
     ;
 
+// erledigt -> Zentralwert (Median)
 medianFunctionStmt
-    : 'var' IDENTIFIER '.' 'Median' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'Median' '(' (IDENTIFIER | numberList) ')' ';'
     ;
 
 maxFunctionStmt
-    : 'var' IDENTIFIER '.' 'Max' '(' valueList ')'
+    : 'var' IDENTIFIER '.' 'Max' '(' valueList ')' ';'
     ;
 
 valueList
@@ -266,7 +303,7 @@ valueList
     ;
 
 maxFromListStmt
-    : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')' ';'
     ;
 
 // String-Funktionen
@@ -328,5 +365,6 @@ NULL: 'null';
 BIN: '0' | '1';
 BINARY: '0' | '1';
 
+// Kommentare (müssen noch implementiert werden)
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 BLOCK_COMMENT: '!!' .*? '!!' -> skip;

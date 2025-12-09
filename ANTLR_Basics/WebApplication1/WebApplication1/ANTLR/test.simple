@@ -1,22 +1,21 @@
-// Test 20: Min-Funktion
-print("=== MIN-FUNKTION ===");
+// =======================================================
+// TEST: Mathematische Funktion MAX
+// =======================================================
 
-// Direkte Zahlenliste
-var result1.Min(5, 3, 8, 1, 9);
-print("Min(5, 3, 8, 1, 9) = " + result1);
+// Vorbereitung: Variablen
+a = 5.0;
+b = 15.0;
+c = 1.0;
 
-// Mit Dezimalzahlen
-var result2.Min(2.5, 1.8, 3.2, 0.5);
-print("Min(2.5, 1.8, 3.2, 0.5) = " + result2);
+// 20. Test: Explizite Liste (MaxFunctionStmt)
+// Findet das Maximum aus 5.0, 15.0, 1.0
+var max1.Max(a, b, c);
+print("Test 20 (Explizit): Max(a, b, c) ->");
+print(max1); // Erwartet: 15.0
 
-// Nur eine Zahl
-var result3.Min(7);
-print("Min(7) = " + result3);
-
-// Mit negativen Zahlen
-var result4.Min(-5, -2, 0, 3);
-print("Min(-5, -2, 0, 3) = " + result4);
-
-// Gemischte Zahlen
-var result5.Min(10, -3, 5.5, 0, -10.2);
-print("Min(10, -3, 5.5, 0, -10.2) = " + result5);
+// 21. Test: Max aus Listenvariable (MaxFromListStmt)
+// (HINWEIS: Setzt funktionierende Listenzuweisung voraus!)
+maxTestList = [40.0, 10.0, 99.0, 50.0]; 
+var max2.Max(maxTestList);
+print("Test 21 (Variable): Max(maxTestList) ->");
+print(max2); // Erwartet: 99.0
