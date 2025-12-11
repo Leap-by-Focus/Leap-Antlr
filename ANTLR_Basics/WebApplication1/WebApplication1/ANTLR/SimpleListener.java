@@ -71,6 +71,18 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitAdditiveExpression(SimpleParser.AdditiveExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code LengthAccessExpression}
+	 * labeled alternative in {@link SimpleParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterLengthAccessExpression(SimpleParser.LengthAccessExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LengthAccessExpression}
+	 * labeled alternative in {@link SimpleParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitLengthAccessExpression(SimpleParser.LengthAccessExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code UnaryMinusExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
@@ -633,13 +645,13 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitContainsFunctionStmt(SimpleParser.ContainsFunctionStmtContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SimpleParser#lengthAccess}.
+	 * Enter a parse tree produced by {@link SimpleParser#lengthAccessExpr}.
 	 * @param ctx the parse tree
 	 */
-	void enterLengthAccess(SimpleParser.LengthAccessContext ctx);
+	void enterLengthAccessExpr(SimpleParser.LengthAccessExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SimpleParser#lengthAccess}.
+	 * Exit a parse tree produced by {@link SimpleParser#lengthAccessExpr}.
 	 * @param ctx the parse tree
 	 */
-	void exitLengthAccess(SimpleParser.LengthAccessContext ctx);
+	void exitLengthAccessExpr(SimpleParser.LengthAccessExprContext ctx);
 }

@@ -4,7 +4,6 @@ grammar Simple;
 //Grammatik für Listen notwendig
 // bis dahin explizite Listen
 // Garbage Collection "aktivieren"
-//String-Methoden
 //Kommentare
 
 
@@ -37,6 +36,7 @@ expression
     | constant                                #ConstantExpression
     | IDENTIFIER                              #IdentifierExpression
     | 'new' IDENTIFIER '(' ')'                #ObjectCreationExpression
+    | lengthAccessExpr                        #LengthAccessExpression 
     ;
 
 // addieren und subtrahieren
@@ -122,7 +122,6 @@ line
     | leftRangeFunctionStmt
     | concatFunctionStmt
     | containsFunctionStmt
-    | lengthAccess
     ;
 
 block: '{' line* '}';
@@ -130,7 +129,7 @@ block: '{' line* '}';
 // Vergleichsoperatoren
 compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
-// Schleifen und Bedingungen
+// ---Schleifen und Bedingungen---
 
 // erledigt -> for-Schleife
 forStmt
@@ -209,7 +208,7 @@ doAsLongStmt
     : 'do' '{' line* '}' AS_LONG expr customCompOp expr
     ;
 
-// File
+// ---File-Methoden---
 
 // erledigt -> Datei schreiben
 writeFileStmt
@@ -256,7 +255,7 @@ openFileStmt
     : 'OpenFile' '(' STRING ')' ';'
     ;
 
-// Mathematische Funktionen
+// ---Mathematische Funktionen---
 
 // erledigt -> kleinste Zahl 
 minExpr
@@ -316,7 +315,7 @@ maxFromListStmt
     : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')' ';'
     ;
 
-// String-Funktionen
+//---String-Funktionen---
 
 // erledigt -> Text in Kleinbuchstaben umwandeln
 toLowerFunctionStmt
@@ -361,19 +360,19 @@ leftRangeFunctionStmt
     : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ',' NUMBER ')' ';'
     ;
 
-//c
+// erledigt -> Text verketten
 concatFunctionStmt
     : 'var' IDENTIFIER '.' 'Concat' '(' IDENTIFIER ',' IDENTIFIER ',' STRING ')' ';'
     ;
 
-//c
+// erledigt -> Text nach bestimmtem Wert durchsuchen
 containsFunctionStmt
     : 'var' IDENTIFIER '.' 'Contains' '(' IDENTIFIER ',' STRING ')' ';'
     ;
 
-//c
-lengthAccess
-    : IDENTIFIER '.' 'Length' ';'
+// erledigt -> Länge einen Textes
+lengthAccessExpr
+    : IDENTIFIER '.' 'Length'
     ;
 
 // Datentyp-Tokens
@@ -388,4 +387,4 @@ BINARY: '0' | '1';
 
 // Kommentare (müssen noch implementiert werden)
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
-//BLOCK_COMMENT: '!!' .*? '!!' -> skip; -> deaktiviert, weil nicht besprochen
+ARROW_COMMENT: '--' ~[\r\n]* -> skip;

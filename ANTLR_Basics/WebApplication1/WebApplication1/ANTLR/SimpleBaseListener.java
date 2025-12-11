@@ -88,6 +88,18 @@ public class SimpleBaseListener implements SimpleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLengthAccessExpression(SimpleParser.LengthAccessExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLengthAccessExpression(SimpleParser.LengthAccessExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUnaryMinusExpression(SimpleParser.UnaryMinusExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -748,13 +760,13 @@ public class SimpleBaseListener implements SimpleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLengthAccess(SimpleParser.LengthAccessContext ctx) { }
+	@Override public void enterLengthAccessExpr(SimpleParser.LengthAccessExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLengthAccess(SimpleParser.LengthAccessContext ctx) { }
+	@Override public void exitLengthAccessExpr(SimpleParser.LengthAccessExprContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

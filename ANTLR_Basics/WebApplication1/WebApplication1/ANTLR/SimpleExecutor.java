@@ -23,6 +23,7 @@ public class SimpleExecutor {
     
     private static MemoryStats memoryStats = new MemoryStats();
     
+    //Start
     public static void main(String[] args) throws Exception {
         String code = readFile("test.simple");
         execute(code);
@@ -72,6 +73,7 @@ public class SimpleExecutor {
         variables.forEach((name, value) -> System.out.println(name + " = " + value));
     }
     
+    //der ganze Parse-Tree
     private static void processTree(ParseTree tree) {
         if (tree instanceof SimpleParser.ProgramContext) {
             SimpleParser.ProgramContext program = (SimpleParser.ProgramContext) tree;
@@ -220,6 +222,12 @@ public class SimpleExecutor {
         else if (tree instanceof SimpleParser.LeftRangeFunctionStmtContext){
             processLeftRangeFunctionStmt((SimpleParser.LeftRangeFunctionStmtContext) tree);
         }
+        else if (tree instanceof SimpleParser.ConcatFunctionStmtContext){
+            processConcatFunctionStmt((SimpleParser.ConcatFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.ContainsFunctionStmtContext){
+            processContainsFunctionStmt((SimpleParser.ContainsFunctionStmtContext) tree);
+        }
     }
     
     private static void processAssignment(SimpleParser.AssignmentContext assign) {
@@ -350,7 +358,7 @@ public class SimpleExecutor {
         }
     }
     
-    //Schleifen
+    //---Schleifen---
     
     // FOR-Schleife
     private static void processForLoop(SimpleParser.ForStmtContext ctx) {
@@ -1248,7 +1256,7 @@ public class SimpleExecutor {
         return null;
     }
     
-    //Ausdrücke / Expressions
+    //---Ausdrücke / Expressions---
     
     // Einfache Expression-Auswertung für Schleifen
     private static Object evaluateSimpleExpr(SimpleParser.ExprContext expr) {
@@ -1431,7 +1439,23 @@ public class SimpleExecutor {
                 throw new RuntimeException("Unäres Minus nur für Zahlen erlaubt: " + val);
             }
         }
-        
+        else if (expr instanceof SimpleParser.LengthAccessExpressionContext lengthExprCtx) {
+    
+            SimpleParser.LengthAccessExprContext lengthCtx = lengthExprCtx.lengthAccessExpr();
+
+            String varName = lengthCtx.IDENTIFIER().getText();
+            
+            Object value = variables.get(varName);
+            
+            if (!(value instanceof String s)) {
+                throw new RuntimeException("Length-Zugriff nur für Strings erlaubt, gefunden: " + value.getClass().getSimpleName());
+            }
+            
+            double length = (double) s.length();
+            
+            System.out.println("LENGTHACCESS: " + varName + ".Length -> " + length);
+            return length;
+        }
         throw new RuntimeException("Unbekannter Expression-Typ: " + expr.getClass().getSimpleName());
     }
     
@@ -1447,8 +1471,9 @@ public class SimpleExecutor {
         }
     }
     
-    // File-Methoden (existierende Methoden)
+    // ---File-Methoden (existierende Methoden)---
 
+    //Datei schreiben
     private static void processWriteFileStmt(SimpleParser.WriteFileStmtContext ctx){
         String varName = ctx.IDENTIFIER().getText();
         String filename = ctx.STRING().getText().replaceAll("^\"|\"$", "");
@@ -1470,6 +1495,7 @@ public class SimpleExecutor {
         }
     }
 
+    //Datei lesen
     private static void processReadFileStmt(SimpleParser.ReadFileStmtContext ctx){
         String varName = ctx.IDENTIFIER().getText();
         String filename = ctx.STRING().getText().replaceAll("^\"|\"$", "");
@@ -1485,6 +1511,7 @@ public class SimpleExecutor {
         } 
     }
 
+    //Datei löschen
     private static void processDeleteFileStmt(SimpleParser.DeleteFileStmtContext ctx){
         String fileName = ctx.STRING().getText().replaceAll("^\"|\"$", "");
 
@@ -1502,6 +1529,7 @@ public class SimpleExecutor {
         }
     }
 
+    //Ist null Funktion
     private static void processIsNullStmt(SimpleParser.IsNullStmtContext ctx) {
         // Das erste IDENTIFIER ist die Variable für das Ergebnis
         String resultVar = ctx.IDENTIFIER(0).getText();
@@ -1545,6 +1573,7 @@ public class SimpleExecutor {
         System.out.println("Ergebnis: " + resultVar + " = " + isNull);
     }
 
+    //Datei existiert
     private static void processExistsStmt(SimpleParser.ExistsStmtContext ctx) {
         String varName = ctx.IDENTIFIER(0).getText(); // Verwende das erste IDENTIFIER-Token
         String path = ctx.STRING().getText().replaceAll("^\"|\"$", "");
@@ -1557,6 +1586,7 @@ public class SimpleExecutor {
         System.out.println("Ergebnis: " + varName + " = " + exists);
     }
 
+    //Schlafen
     private static void processSleepStmt(SimpleParser.SleepStmtContext ctx) {
         if (ctx.NUMBER() == null) {
             throw new RuntimeException("Fehlender INTEGER-Wert für Sleep.");
@@ -1575,6 +1605,7 @@ public class SimpleExecutor {
         System.out.println("Schlafen beendet.");
     }
 
+    //Ordner erstellen
     private static void processCreateFolderStmt(SimpleParser.CreateFolderStmtContext ctx) {
         String folderPath = ctx.STRING().getText().replaceAll("^\"|\"$", "");
 
@@ -1588,6 +1619,7 @@ public class SimpleExecutor {
         }
     }
 
+    //Ordner löschen
     private static void processDeleteFolderStmt(SimpleParser.DeleteFolderStmtContext ctx) {
         String folderPath = ctx.STRING().getText().replaceAll("^\"|\"$", "");
 
@@ -1605,6 +1637,7 @@ public class SimpleExecutor {
         }
     }
 
+    //Ordner öffnen
     private static void processOpenFileStmt(SimpleParser.OpenFileStmtContext ctx) {
         String filePath = ctx.STRING().getText().replaceAll("^\"|\"$", "");
 
@@ -1623,9 +1656,9 @@ public class SimpleExecutor {
     }
 
 
-    // Mathematische Funktionen
+    // ---Mathematische Funktionen---
 
-
+    //Kleinste Zahl finden
     private static void processMinExpr(SimpleParser.MinExprContext ctx) {
         //MinExpr hat #minFunctionCall label
         SimpleParser.MinFunctionCallContext minCall = (SimpleParser.MinFunctionCallContext) ctx;
@@ -1657,7 +1690,7 @@ public class SimpleExecutor {
         System.out.println("Min-Funktion: Minimum von " + numbers + " = " + min + " -> gespeichert in " + resultVar);
     }
 
-
+    //Kleinste Zahl einer Liste
     private static void processMinListFunctionStmt(SimpleParser.MinListFunctionStmtContext ctx) {
         // Erste IDENTIFIER ist die Ergebnisvariable
         String resultVar = ctx.IDENTIFIER(0).getText();
@@ -1707,6 +1740,7 @@ public class SimpleExecutor {
         System.out.println("Min-Funktion: Minimum von " + numbers + " = " + min + " -> gespeichert in " + resultVar);
     }
 
+    //Absoluter Wert
     private static void processAbsFunctionStmt(SimpleParser.AbsFunctionStmtContext ctx){
         String resultVar = ctx.IDENTIFIER().get(0).getText();
         
@@ -1740,6 +1774,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Quadratfunktion (Potenz)
     private static void processSqrtFunctionStmt(SimpleParser.SqrtFunctionStmtContext ctx) {
     
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -1787,6 +1822,7 @@ public class SimpleExecutor {
         throw new RuntimeException("Ungültiger Argumenttyp für Potenzfunktion: " + node.getText());
     }
 
+    //Zahl runden
     private static void processRoundFunctionStmt(SimpleParser.RoundFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -1824,6 +1860,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Zufallszahl generieren
     private static void processRandomFunctionStmt(SimpleParser.RandomFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -1853,6 +1890,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    // Hilfsmethode zur Extraktion einer Liste von Zahlen aus einem ParseTree-Knoten
     private static List<Double> getListArgument(ParseTree argNode) {
         
         if (argNode instanceof SimpleParser.NumberListContext numberListCtx) {
@@ -1882,6 +1920,7 @@ public class SimpleExecutor {
         throw new RuntimeException("Ungültiges Argumentformat für Listenfunktion: " + argNode.getText());
     }
 
+    //Mittelwert berechnen
     private static void processMeanFunctionStmt(SimpleParser.MeanFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -1909,6 +1948,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Median berechnen
     private static void processMedianFunctionStmt(SimpleParser.MedianFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -1941,6 +1981,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Größte Zahl finden
     private static void processMaxFunctionStmt(SimpleParser.MaxFunctionStmtContext ctx) {
         
         TerminalNode targetNode = (TerminalNode) ctx.getChild(1);
@@ -1974,6 +2015,7 @@ public class SimpleExecutor {
     //1. processMaxFromListStmt
     // 2. extractValuesFromValueList (COMMA durch 46 ersetzen)
 
+    //Größte Zahl aus Liste finden
     private static void processMaxFromListStmt(SimpleParser.MaxFromListStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -2037,6 +2079,9 @@ public class SimpleExecutor {
         return list;
     }
 
+    // ---String-Funktionen---
+
+    //In Kleinbuchstaben umwandeln
     private static void processToLowerFunctionStmt(SimpleParser.ToLowerFunctionStmtContext ctx) {
     
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -2066,6 +2111,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //In Großbuchstaben umwandeln
     private static void processToUpperFunctionStmt(SimpleParser.ToUpperFunctionStmtContext ctx){
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
 
@@ -2095,6 +2141,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Leerzeichen entfernen
     private static void processTrimFunctionStmt(SimpleParser.TrimFunctionStmtContext ctx){
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
 
@@ -2124,6 +2171,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Leerzeichen am Anfang entfernen
     private static void processTrimStartFunctionStmt(SimpleParser.TrimStartFunctionStmtContext ctx) {
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
         String sourceVarName = ctx.IDENTIFIER().get(1).getText();
@@ -2143,6 +2191,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Leerzeichen am Ende entfernen
     private static void processTrimEndFunctionStmt(SimpleParser.TrimEndFunctionStmtContext ctx) {
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
         String sourceVarName = ctx.IDENTIFIER().get(1).getText();
@@ -2162,6 +2211,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //String ersetzen
     private static void processReplaceFunctionStmt(SimpleParser.ReplaceFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -2197,6 +2247,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //String aufteilen
     private static void processSplitFunctionStmt(SimpleParser.SplitFunctionStmtContext ctx) {
     
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -2235,6 +2286,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Linke Zeichen extrahieren
     private static void processLeftFunctionStmt(SimpleParser.LeftFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -2275,6 +2327,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
+    //Linke Zeichen mit Startindex extrahieren
     private static void processLeftRangeFunctionStmt(SimpleParser.LeftRangeFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
@@ -2316,6 +2369,80 @@ public class SimpleExecutor {
         trackMemoryAfterAssignment(resultVarName, result);
         
         System.out.println("LEFTRANGEFUNCTION: Left(" + sourceVarName + ", Start: " + startIndex + ", Länge: " + length + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    //String verketten
+    private static void processConcatFunctionStmt(SimpleParser.ConcatFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 3) {
+            throw new RuntimeException("Concat benötigt zwei Quell-Identifier.");
+        }
+        String var1Name = ctx.IDENTIFIER().get(1).getText();
+        String var2Name = ctx.IDENTIFIER().get(2).getText();
+        
+        if (!variables.containsKey(var1Name) || !variables.containsKey(var2Name)) {
+            throw new RuntimeException("Quellvariablen für Concat nicht definiert.");
+        }
+        
+        String str1 = variables.get(var1Name).toString();
+        String str2 = variables.get(var2Name).toString();
+        
+        TerminalNode stringNode = ctx.STRING();
+        
+        if (stringNode == null) {
+            System.out.println("WARNUNG: Drittes Argument (Literal) in Concat wurde nicht gefunden. Verwende leeren String.");
+            throw new RuntimeException("Concat benötigt ein String-Literal als drittes Argument.");
+        }
+        
+        String literalNodeText = stringNode.getText();
+        String literal = literalNodeText.replaceAll("^\"|\"$", "");
+
+        String result = str1 + str2 + literal;
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("CONCATFUNCTION: Concat(" + str1 + ", " + str2 + ", '" + literal + "') -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    //Überprüfen, ob String enthalten ist
+    private static void processContainsFunctionStmt(SimpleParser.ContainsFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 2) {
+            throw new RuntimeException("Contains benötigt einen Quell-Identifier.");
+        }
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        
+        if (!variables.containsKey(sourceVarName)) {
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+        
+        Object sourceObject = variables.get(sourceVarName);
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("Contains erfordert einen String-Wert als Quelle.");
+        }
+        
+        TerminalNode searchNode = ctx.STRING();
+        if (searchNode == null) {
+            throw new RuntimeException("Contains benötigt ein String-Literal als Suchwert.");
+        }
+        
+        String searchString = searchNode.getText().replaceAll("^\"|\"$", "");
+
+        boolean result = sourceString.contains(searchString);
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("CONTAINSFUNCTION: Contains('" + searchString + "' in " + sourceVarName + ") -> " + resultVarName + " = " + result);
         printMemoryStats();
     }
 }
