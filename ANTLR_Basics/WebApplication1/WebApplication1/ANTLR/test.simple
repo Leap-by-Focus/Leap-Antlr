@@ -1,18 +1,17 @@
 // =======================================================
-// TEST: Mathematische Funktion MAX
+// TEST: String Funktion LeftRange
 // =======================================================
 
-// Vorbereitung: Variablen
-a = 5.0;
-b = 15.0;
-c = 1.0;
+// Vorbereitung (String: A B C D E F G)
+// Indizes:     0 1 2 3 4 5 6
+rangeString = "ABCDEFG"; 
 
-// 20. Test: Explizite Liste (MaxFunctionStmt)
-var max1.Max(a, b, c);
-print("Test 20 (Explizit): Max(a, b, c) ->");
-print(max1); // Erwartet: 15.0
+// 29. Test: Starte bei Index 2 ('C'), Länge 3
+var range1.Left(rangeString, 2, 3);
+print("Test 29 (Start 2, Länge 3): ->");
+print(range1); // Erwartet: CDE
 
-// 21. Test: Explizite Liste (direkte Zahlen)
-var max2.Max(40.0, 10.0, 99.0, 50.0);
-print("Test 21 (Direkte Liste): Max(40, 10, 99, 50) ->");
-print(max2); // Erwartet: 99.0
+// 30. Test: Starte bei Index 4 ('E'), Länge 5 (Überlappung)
+var range2.Left(rangeString, 4, 5);
+print("Test 30 (Start 4, Länge 5): ->");
+print(range2); // Erwartet: EFGs

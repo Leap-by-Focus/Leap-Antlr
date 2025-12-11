@@ -4,6 +4,9 @@ grammar Simple;
 //Grammatik für Listen notwendig
 // bis dahin explizite Listen
 // Garbage Collection "aktivieren"
+//String-Methoden
+//Kommentare
+
 
 // Basisstruktur
 program
@@ -299,6 +302,7 @@ medianFunctionStmt
     : 'var' IDENTIFIER '.' 'Median' '(' (IDENTIFIER | numberList) ')' ';'
     ;
 
+// erledigt -> größte Zahl
 maxFunctionStmt
     : 'var' IDENTIFIER '.' 'Max' '(' valueList ')' ';'
     ;
@@ -307,57 +311,69 @@ valueList
     : (NUMBER | IDENTIFIER) (',' (NUMBER | IDENTIFIER))*
     ;
 
+// erledigt -> größter Wert aus Liste
 maxFromListStmt
     : 'var' IDENTIFIER '.' 'Max' '(' IDENTIFIER ')' ';'
     ;
 
 // String-Funktionen
+
+// erledigt -> Text in Kleinbuchstaben umwandeln
 toLowerFunctionStmt
-    : 'var' IDENTIFIER '.' 'ToLower' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'ToLower' '(' IDENTIFIER ')' ';'
     ;
-
+// erledigt -> Text in Großbuchstaben umwandeln
 toUpperFunctionStmt
-    : 'var' IDENTIFIER '.' 'ToUpper' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'ToUpper' '(' IDENTIFIER ')' ';'
     ;
-
+// erledigt -> Leerzeichen außen entfernen (an beiden Seiten)
 trimFunctionStmt
-    : 'var' IDENTIFIER '.' 'Trim' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'Trim' '(' IDENTIFIER ')' ';'
     ;
 
+// ereledigt -> Leerzeichen am Anfang entfernen
 trimStartFunctionStmt
-    : 'var' IDENTIFIER '.' 'TrimStart' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'TrimStart' '(' IDENTIFIER ')' ';'
     ;
 
+// erledigt -> Leerzeichen am Ende entfernen
 trimEndFunctionStmt
-    : 'var' IDENTIFIER '.' 'TrimEnd' '(' IDENTIFIER ')'
+    : 'var' IDENTIFIER '.' 'TrimEnd' '(' IDENTIFIER ')' ';'
     ;
 
+// erledigt -> bestimmten Text ersetzen
 replaceFunctionStmt
-    : 'var' IDENTIFIER '.' 'Replace' '(' IDENTIFIER ',' STRING ',' STRING ')'
+    : 'var' IDENTIFIER '.' 'Replace' '(' IDENTIFIER ',' STRING ',' STRING ')' ';'
     ;
 
+// erledigt -> Text aufteilen durch bestimmtes Trennzeichen
 splitFunctionStmt
-    : 'var' IDENTIFIER'.' 'Split' '(' IDENTIFIER ',' STRING ')'
+    : 'var' IDENTIFIER'.' 'Split' '(' IDENTIFIER ',' STRING ')' ';'
     ;
 
+// erledigt -> linke Zeichen extrahieren
 leftFunctionStmt
-    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ')'
+    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ')' ';'
     ;
 
+// erledigt -> linke Zeichen mit Bereich extrahieren
 leftRangeFunctionStmt
-    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ',' NUMBER ')'
+    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ',' NUMBER ')' ';'
     ;
 
+//c
 concatFunctionStmt
-    : 'var' IDENTIFIER '.' 'Concat' '(' IDENTIFIER ',' IDENTIFIER ',' STRING ')'
+    : 'var' IDENTIFIER '.' 'Concat' '(' IDENTIFIER ',' IDENTIFIER ',' STRING ')' ';'
     ;
 
+//c
 containsFunctionStmt
-    : 'var' IDENTIFIER '.' 'Contains' '(' IDENTIFIER ',' STRING ')'
+    : 'var' IDENTIFIER '.' 'Contains' '(' IDENTIFIER ',' STRING ')' ';'
     ;
 
+//c
 lengthAccess
-    : IDENTIFIER '.' 'Length'
+    : IDENTIFIER '.' 'Length' ';'
     ;
 
 // Datentyp-Tokens
@@ -372,4 +388,4 @@ BINARY: '0' | '1';
 
 // Kommentare (müssen noch implementiert werden)
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
-BLOCK_COMMENT: '!!' .*? '!!' -> skip;
+//BLOCK_COMMENT: '!!' .*? '!!' -> skip; -> deaktiviert, weil nicht besprochen

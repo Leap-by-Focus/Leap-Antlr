@@ -193,6 +193,33 @@ public class SimpleExecutor {
         else if (tree instanceof SimpleParser.MaxFromListStmtContext) {
             processMaxFromListStmt((SimpleParser.MaxFromListStmtContext) tree);
         }
+        else if (tree instanceof SimpleParser.ToLowerFunctionStmtContext){
+            processToLowerFunctionStmt((SimpleParser.ToLowerFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.ToUpperFunctionStmtContext){
+            processToUpperFunctionStmt((SimpleParser.ToUpperFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.TrimFunctionStmtContext){
+            processTrimFunctionStmt((SimpleParser.TrimFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.TrimStartFunctionStmtContext) {
+            processTrimStartFunctionStmt((SimpleParser.TrimStartFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.TrimEndFunctionStmtContext) {
+            processTrimEndFunctionStmt((SimpleParser.TrimEndFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.ReplaceFunctionStmtContext){
+            processReplaceFunctionStmt((SimpleParser.ReplaceFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.SplitFunctionStmtContext){
+            processSplitFunctionStmt((SimpleParser.SplitFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.LeftFunctionStmtContext){
+            processLeftFunctionStmt((SimpleParser.LeftFunctionStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.LeftRangeFunctionStmtContext){
+            processLeftRangeFunctionStmt((SimpleParser.LeftRangeFunctionStmtContext) tree);
+        }
     }
     
     private static void processAssignment(SimpleParser.AssignmentContext assign) {
@@ -323,9 +350,7 @@ public class SimpleExecutor {
         }
     }
     
-    // ==========================
-    // SCHLEIFEN-IMPLEMENTIERUNG
-    // ==========================
+    //Schleifen
     
     // FOR-Schleife
     private static void processForLoop(SimpleParser.ForStmtContext ctx) {
@@ -1223,9 +1248,7 @@ public class SimpleExecutor {
         return null;
     }
     
-    // ==========================
-    // EXPRESSION AUSWERTUNG
-    // ==========================
+    //Ausdrücke / Expressions
     
     // Einfache Expression-Auswertung für Schleifen
     private static Object evaluateSimpleExpr(SimpleParser.ExprContext expr) {
@@ -1425,6 +1448,7 @@ public class SimpleExecutor {
     }
     
     // File-Methoden (existierende Methoden)
+
     private static void processWriteFileStmt(SimpleParser.WriteFileStmtContext ctx){
         String varName = ctx.IDENTIFIER().getText();
         String filename = ctx.STRING().getText().replaceAll("^\"|\"$", "");
@@ -1599,7 +1623,7 @@ public class SimpleExecutor {
     }
 
 
-    // ===Mathematische Funktionen===
+    // Mathematische Funktionen
 
 
     private static void processMinExpr(SimpleParser.MinExprContext ctx) {
@@ -2011,5 +2035,287 @@ public class SimpleExecutor {
             }
         }
         return list;
+    }
+
+    private static void processToLowerFunctionStmt(SimpleParser.ToLowerFunctionStmtContext ctx) {
+    
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 2) {
+            throw new RuntimeException("ToLower benötigt einen Quell-Identifier als Argument.");
+        }
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        
+        if (!variables.containsKey(sourceVarName)) {
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+        
+        Object sourceObject = variables.get(sourceVarName);
+        
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("ToLower erfordert einen String-Wert, gefunden: " + sourceObject.getClass().getSimpleName());
+        }
+
+        String result = sourceString.toLowerCase();
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("TOLOWERFUNCTION: ToLower(" + sourceVarName + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processToUpperFunctionStmt(SimpleParser.ToUpperFunctionStmtContext ctx){
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+
+        if (ctx.IDENTIFIER().size() < 2){
+            throw new RuntimeException("ToUpper benötigt einen Quell-Identifier als Argument.");
+        }
+
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+
+        if (!variables.containsKey(sourceVarName)){
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+
+        Object sourceObject = variables.get(sourceVarName);
+
+        if (!(sourceObject instanceof String sourceString)){
+            throw new RuntimeException("ToUpper erfordert einen String-Wert, gefunden: " + sourceObject.getClass().getSimpleName());
+        }
+
+        String result = sourceString.toUpperCase();
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+
+        System.out.println("TOUPPERFUNCTION: ToUpper(" + sourceVarName + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processTrimFunctionStmt(SimpleParser.TrimFunctionStmtContext ctx){
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+
+        if (ctx.IDENTIFIER().size() < 2){
+            throw new RuntimeException("Trim benötigt einen Quell-Identifier als Argument.");
+        }
+
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+
+        if (!variables.containsKey(sourceVarName)){
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+
+        Object sourceObject = variables.get(sourceVarName);
+
+        if (!(sourceObject instanceof String sourceString)){
+            throw new RuntimeException("Trim erfordert einen String-Wert, gefunden: " + sourceObject.getClass().getSimpleName());
+        }
+
+        String result = sourceString.trim();
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+
+        System.out.println("TRIMFUNCTION: Trim(" + sourceVarName + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processTrimStartFunctionStmt(SimpleParser.TrimStartFunctionStmtContext ctx) {
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        Object sourceObject = variables.get(sourceVarName);
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("TrimStart erfordert einen String-Wert.");
+        }
+        
+        // Regex: ^[\s]+ ersetzt Whitespace am Anfang (^) durch Nichts ("")
+        String result = sourceString.replaceAll("^[\\s]+", "");
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+
+        System.out.println("TRIMSTARTFUNCTION: TrimStart(" + sourceVarName + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processTrimEndFunctionStmt(SimpleParser.TrimEndFunctionStmtContext ctx) {
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        Object sourceObject = variables.get(sourceVarName);
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("TrimEnd erfordert einen String-Wert.");
+        }
+
+        // Regex: [\s]+$ ersetzt Whitespace am Ende ($) durch Nichts ("")
+        String result = sourceString.replaceAll("[\\s]+$", "");
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+
+        System.out.println("TRIMENDFUNCTION: TrimEnd(" + sourceVarName + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processReplaceFunctionStmt(SimpleParser.ReplaceFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 2) {
+            throw new RuntimeException("Replace benötigt einen Quell-Identifier.");
+        }
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        
+        if (!variables.containsKey(sourceVarName)) {
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+        
+        Object sourceObject = variables.get(sourceVarName);
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("Replace erfordert einen String-Wert als Quelle.");
+        }
+        
+        if (ctx.STRING().size() < 2) {
+            throw new RuntimeException("Replace benötigt zwei String-Literale (Alt und Neu).");
+        }
+        String oldString = ctx.STRING().get(0).getText().replaceAll("^\"|\"$", "");
+        
+        String newString = ctx.STRING().get(1).getText().replaceAll("^\"|\"$", "");
+
+        String result = sourceString.replace(oldString, newString);
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("REPLACEFUNCTION: Replace(" + sourceVarName + ", '" + oldString + "', '" + newString + "') -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processSplitFunctionStmt(SimpleParser.SplitFunctionStmtContext ctx) {
+    
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 2) {
+            throw new RuntimeException("Split benötigt einen Quell-Identifier.");
+        }
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        
+        if (!variables.containsKey(sourceVarName)) {
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+        
+        Object sourceObject = variables.get(sourceVarName);
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("Split erfordert einen String-Wert als Quelle.");
+        }
+        
+        TerminalNode delimiterNode = ctx.STRING();
+        
+        if (delimiterNode == null) {
+            throw new RuntimeException("Split benötigt ein String-Literal als Trennzeichen.");
+        }
+        
+        String delimiter = delimiterNode.getText().replaceAll("^\"|\"$", "");
+
+        String[] partsArray = sourceString.split(delimiter);
+        
+        List<String> resultList = Arrays.asList(partsArray);
+
+        trackMemoryBeforeAssignment(resultVarName, resultList);
+        variables.put(resultVarName, resultList);
+        trackMemoryAfterAssignment(resultVarName, resultList);
+        
+        System.out.println("SPLITFUNCTION: Split(" + sourceVarName + " durch '" + delimiter + "') -> " + resultVarName + " = " + resultList);
+        printMemoryStats();
+    }
+
+    private static void processLeftFunctionStmt(SimpleParser.LeftFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 2) {
+            throw new RuntimeException("Left benötigt einen Quell-Identifier.");
+        }
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        
+        if (!variables.containsKey(sourceVarName)) {
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+        
+        Object sourceObject = variables.get(sourceVarName);
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("Left erfordert einen String-Wert als Quelle.");
+        }
+        
+        TerminalNode lengthNode = ctx.NUMBER();
+        if (lengthNode == null) {
+            throw new RuntimeException("Left benötigt eine numerische Länge.");
+        }
+        
+        int length = (int) Double.parseDouble(lengthNode.getText());
+        
+        if (length < 0) {
+            throw new RuntimeException("Länge für Left-Funktion muss >= 0 sein.");
+        }
+
+        int actualLength = Math.min(length, sourceString.length());
+        String result = sourceString.substring(0, actualLength);
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("LEFTFUNCTION: Left(" + sourceVarName + ", " + length + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
+    }
+
+    private static void processLeftRangeFunctionStmt(SimpleParser.LeftRangeFunctionStmtContext ctx) {
+        
+        String resultVarName = ctx.IDENTIFIER().get(0).getText();
+        
+        if (ctx.IDENTIFIER().size() < 2) {
+            throw new RuntimeException("Left Range benötigt einen Quell-Identifier.");
+        }
+        String sourceVarName = ctx.IDENTIFIER().get(1).getText();
+        
+        if (!variables.containsKey(sourceVarName)) {
+            throw new RuntimeException("Quellvariable nicht definiert: " + sourceVarName);
+        }
+        Object sourceObject = variables.get(sourceVarName);
+        if (!(sourceObject instanceof String sourceString)) {
+            throw new RuntimeException("Left Range erfordert einen String-Wert als Quelle.");
+        }
+        
+        if (ctx.NUMBER().size() < 2) {
+            throw new RuntimeException("Left Range benötigt Startindex und Länge.");
+        }
+        int startIndex = (int) Double.parseDouble(ctx.NUMBER().get(0).getText());
+        
+        int length = (int) Double.parseDouble(ctx.NUMBER().get(1).getText());
+
+        int stringLength = sourceString.length();
+        
+        if (startIndex < 0 || startIndex >= stringLength) {
+            throw new RuntimeException("Startindex (" + startIndex + ") ist außerhalb des gültigen Bereichs [0, " + (stringLength - 1) + "].");
+        }
+        if (length < 0) {
+            throw new RuntimeException("Länge muss >= 0 sein.");
+        }
+
+        int endIndex = Math.min(startIndex + length, stringLength);
+        String result = sourceString.substring(startIndex, endIndex);
+
+        trackMemoryBeforeAssignment(resultVarName, result);
+        variables.put(resultVarName, result);
+        trackMemoryAfterAssignment(resultVarName, result);
+        
+        System.out.println("LEFTRANGEFUNCTION: Left(" + sourceVarName + ", Start: " + startIndex + ", Länge: " + length + ") -> " + resultVarName + " = " + result);
+        printMemoryStats();
     }
 }
