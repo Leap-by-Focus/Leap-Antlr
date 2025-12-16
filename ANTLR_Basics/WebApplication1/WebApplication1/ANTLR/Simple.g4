@@ -4,7 +4,8 @@ grammar Simple;
 //Grammatik für Listen notwendig
 // bis dahin explizite Listen
 // Garbage Collection "aktivieren"
-//Kommentare
+//right string methode
+//isgreater und isgreaterorequal
 
 
 // Basisstruktur
@@ -72,8 +73,6 @@ IDENTIFIER
 // AS_LONG als ein Token mit optionalem Whitespace
 AS_LONG: 'as' [ \t\r\n]* 'long';
 
-// 'from' als separates Token für LOOP
-FROM: 'from';
 
 WS
     : [ \t\r\n]+ -> skip
@@ -352,7 +351,7 @@ splitFunctionStmt
 
 // erledigt -> linke Zeichen extrahieren
 leftFunctionStmt
-    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' NUMBER ')' ';'
+    : 'var' IDENTIFIER '.' 'Left' '(' IDENTIFIER ',' expression ')' ';' //geändert
     ;
 
 // erledigt -> linke Zeichen mit Bereich extrahieren

@@ -4,6 +4,8 @@ import java.util.*;
 import java.nio.file.*;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class SimpleExecutor {
     
@@ -505,10 +507,10 @@ public class SimpleExecutor {
     
     // LOOP-Schleife
     private static void processLoopStmt(SimpleParser.LoopStmtContext ctx) {
+        String loopVarName = null;
         int start = 1;
         int end = 1;
         
-        // Finde start und end expr
         SimpleParser.ExprContext startExpr = null;
         SimpleParser.ExprContext endExpr = null;
         int exprCount = 0;
@@ -518,6 +520,12 @@ public class SimpleExecutor {
             if (child instanceof SimpleParser.ExprContext) {
                 if (exprCount == 0) {
                     startExpr = (SimpleParser.ExprContext) child;
+                    
+                    if (startExpr.getChild(0) instanceof TerminalNode && 
+                        ((TerminalNode) startExpr.getChild(0)).getSymbol().getType() == SimpleParser.IDENTIFIER) {
+                        
+                        loopVarName = startExpr.getChild(0).getText();
+                    }
                 } else if (exprCount == 1) {
                     endExpr = (SimpleParser.ExprContext) child;
                 }
@@ -536,36 +544,41 @@ public class SimpleExecutor {
             }
         } catch (Exception e) {
             System.out.println("Kann Loop-Parameter nicht auswerten: " + e.getMessage());
+            return;
         }
+    
+        double currentCounter = start;
         
-        System.out.println("LOOP: von " + start + " bis " + end);
+        if (loopVarName != null) {
+            variables.put(loopVarName, (double) start);
+            currentCounter = (double) start;
+        }
+
+        System.out.println("LOOP: von " + start + " bis " + end + (loopVarName != null ? " (Zähler: " + loopVarName + ")" : ""));
         
-        // Optional: Eine Standardvariable "value" setzen, wenn im Code verwendet
-        // variables.put("value", (double) start);
-        
-        // Verarbeite den Inhalt der Schleife
-        for (int i = start; i <= end; i++) {
-            System.out.println("LOOP: Iteration " + i);
+        while (currentCounter <= end) { 
+            System.out.println("LOOP: Iteration " + (int) currentCounter);
             
-            // Optional: Wert aktualisieren
-            // variables.put("value", (double) i);
-            
-            // Verarbeite alle Children des LoopStmtContext
+            if (loopVarName != null) {
+                variables.put(loopVarName, currentCounter);
+            }
+
             for (int j = 0; j < ctx.getChildCount(); j++) {
                 ParseTree child = ctx.getChild(j);
-                // Überspringe 'loop from', expr, 'to', expr
+
                 if (!(child instanceof TerminalNode) && 
                     !(child instanceof SimpleParser.ExprContext) &&
                     !child.getText().equals("loop") &&
                     !child.getText().equals("from") &&
                     !child.getText().equals("to")) {
-                    processTree(child);
+                    
+                    if (child instanceof SimpleParser.BlockContext) {
+                        processTree(child);
+                    }
                 }
             }
+            currentCounter++;
         }
-        
-        // Optional: Variable entfernen
-        // variables.remove("value");
     }
 
     private static SimpleParser.LineContext findLineInLoop(SimpleParser.LoopStmtContext ctx) {
@@ -1824,39 +1837,52 @@ public class SimpleExecutor {
 
     //Zahl runden
     private static void processRoundFunctionStmt(SimpleParser.RoundFunctionStmtContext ctx) {
-        
+    
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
         
-        ParseTree arg1Node = ctx.getChild(5); // Zu rundender Wert
-        ParseTree arg2Node = ctx.getChild(7); // Dezimalstellen (n)
-
-        if (arg1Node == null || arg2Node == null) {
-            throw new RuntimeException("Round-Funktion benötigt zwei numerische Argumente (Wert und Dezimalstellen).");
+        SimpleParser.ExpressionContext valueExpr = null;
+        SimpleParser.ExpressionContext scaleExpr = null;
+        int exprCount = 0;
+        
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            if (child instanceof SimpleParser.ExpressionContext) {
+                if (exprCount == 0) {
+                    valueExpr = (SimpleParser.ExpressionContext) child;
+                } else if (exprCount == 1) {
+                    scaleExpr = (SimpleParser.ExpressionContext) child;
+                }
+                exprCount++;
+            }
+        }
+        
+        if (valueExpr == null || scaleExpr == null) {
+            throw new RuntimeException("Round benötigt zwei Ausdrücke (Wert und Nachkommastellen).");
         }
 
-        double valueToRound = extractNumericArgument(arg1Node);
-        double decimalsDouble = extractNumericArgument(arg2Node);
+        Object valueObj = evaluateExpression(valueExpr);
+        Object scaleObj = evaluateExpression(scaleExpr);
 
-        if (decimalsDouble % 1 != 0 || decimalsDouble < 0) {
-            throw new RuntimeException("Die Anzahl der Dezimalstellen muss eine nicht-negative Ganzzahl sein.");
+        if (!(valueObj instanceof Double sourceValue) || !(scaleObj instanceof Double scaleDouble)) {
+            throw new RuntimeException("Round-Funktion benötigt zwei numerische Argumente.");
         }
-        int decimals = (int) decimalsDouble; 
+
+        int scaleValue = scaleDouble.intValue();
         
-        double factor = Math.pow(10, decimals);
-        
-        // Beispiel: round(1.2345, 2)
-        // a) Skalieren: 1.2345 * 100 = 123.45
-        // b) Runden: Math.round(123.45) = 123
-        // c) Zurückskalieren: 123 / 100 = 1.23
-        double scaledValue = valueToRound * factor;
-        double roundedScaled = Math.round(scaledValue);
-        double result = roundedScaled / factor;
+        if (scaleValue < 0) {
+            throw new RuntimeException("Die Anzahl der Nachkommastellen muss >= 0 sein.");
+        }
+
+        BigDecimal bd = BigDecimal.valueOf(sourceValue);
+        bd = bd.setScale(scaleValue, RoundingMode.HALF_UP); 
+
+        double result = bd.doubleValue();
 
         trackMemoryBeforeAssignment(resultVarName, result);
         variables.put(resultVarName, result);
         trackMemoryAfterAssignment(resultVarName, result);
         
-        System.out.println("ROUNDFUNCTION: Round(" + valueToRound + ", " + decimals + ") -> " + resultVarName + " = " + result);
+        System.out.println("ROUNDFUNCTION: Round(" + sourceValue + ", " + scaleValue + ") -> " + resultVarName + " = " + result);
         printMemoryStats();
     }
 
@@ -2290,7 +2316,7 @@ public class SimpleExecutor {
     private static void processLeftFunctionStmt(SimpleParser.LeftFunctionStmtContext ctx) {
         
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
-        
+                
         if (ctx.IDENTIFIER().size() < 2) {
             throw new RuntimeException("Left benötigt einen Quell-Identifier.");
         }
@@ -2305,12 +2331,18 @@ public class SimpleExecutor {
             throw new RuntimeException("Left erfordert einen String-Wert als Quelle.");
         }
         
-        TerminalNode lengthNode = ctx.NUMBER();
-        if (lengthNode == null) {
-            throw new RuntimeException("Left benötigt eine numerische Länge.");
+        SimpleParser.ExpressionContext lengthExpr = ctx.expression();
+        if (lengthExpr == null) {
+            throw new RuntimeException("Left benötigt eine Längen-Expression.");
         }
         
-        int length = (int) Double.parseDouble(lengthNode.getText());
+        Object lengthValue = evaluateExpression(lengthExpr);
+        
+        if (!(lengthValue instanceof Double d)) {
+            throw new RuntimeException("Länge in Left-Funktion muss eine Zahl sein.");
+        }
+        
+        int length = d.intValue();
         
         if (length < 0) {
             throw new RuntimeException("Länge für Left-Funktion muss >= 0 sein.");
