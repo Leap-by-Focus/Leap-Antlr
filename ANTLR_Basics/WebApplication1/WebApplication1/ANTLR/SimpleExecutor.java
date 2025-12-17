@@ -508,22 +508,19 @@ public class SimpleExecutor {
     // LOOP-Schleife
     private static void processLoopStmt(SimpleParser.LoopStmtContext ctx) {
         String loopVarName = null;
-        int start = 1;
-        int end = 1;
+        int start = 0;
+        int end = 0;
         
         SimpleParser.ExprContext startExpr = null;
         SimpleParser.ExprContext endExpr = null;
         int exprCount = 0;
-        
+
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree child = ctx.getChild(i);
             if (child instanceof SimpleParser.ExprContext) {
                 if (exprCount == 0) {
                     startExpr = (SimpleParser.ExprContext) child;
-                    
-                    if (startExpr.getChild(0) instanceof TerminalNode && 
-                        ((TerminalNode) startExpr.getChild(0)).getSymbol().getType() == SimpleParser.IDENTIFIER) {
-                        
+                    if (startExpr.getChildCount() == 1 && startExpr.getChild(0) instanceof TerminalNode) {
                         loopVarName = startExpr.getChild(0).getText();
                     }
                 } else if (exprCount == 1) {
@@ -532,7 +529,7 @@ public class SimpleExecutor {
                 exprCount++;
             }
         }
-        
+
         try {
             if (startExpr != null) {
                 Object startObj = evaluateSimpleExpr(startExpr);
@@ -543,40 +540,25 @@ public class SimpleExecutor {
                 end = ((Number) endObj).intValue();
             }
         } catch (Exception e) {
-            System.out.println("Kann Loop-Parameter nicht auswerten: " + e.getMessage());
+            System.out.println("Loop-Parameter Fehler: " + e.getMessage());
             return;
         }
-    
-        double currentCounter = start;
-        
-        if (loopVarName != null) {
-            variables.put(loopVarName, (double) start);
-            currentCounter = (double) start;
-        }
 
-        System.out.println("LOOP: von " + start + " bis " + end + (loopVarName != null ? " (Zähler: " + loopVarName + ")" : ""));
-        
-        while (currentCounter <= end) { 
-            System.out.println("LOOP: Iteration " + (int) currentCounter);
-            
+        double currentCounter = start;
+        System.out.println("LOOP: von " + start + " bis " + end + (loopVarName != null ? " (Variable: " + loopVarName + ")" : ""));
+
+        while (currentCounter <= end) {
             if (loopVarName != null) {
                 variables.put(loopVarName, currentCounter);
             }
 
-            for (int j = 0; j < ctx.getChildCount(); j++) {
-                ParseTree child = ctx.getChild(j);
-
-                if (!(child instanceof TerminalNode) && 
-                    !(child instanceof SimpleParser.ExprContext) &&
-                    !child.getText().equals("loop") &&
-                    !child.getText().equals("from") &&
-                    !child.getText().equals("to")) {
-                    
-                    if (child instanceof SimpleParser.BlockContext) {
-                        processTree(child);
-                    }
+            for (int i = 0; i < ctx.getChildCount(); i++) {
+                ParseTree child = ctx.getChild(i);
+                if (!(child instanceof TerminalNode) && !(child instanceof SimpleParser.ExprContext)) {
+                    processTree(child);
                 }
             }
+            
             currentCounter++;
         }
     }
@@ -1837,53 +1819,63 @@ public class SimpleExecutor {
 
     //Zahl runden
     private static void processRoundFunctionStmt(SimpleParser.RoundFunctionStmtContext ctx) {
-    
         String resultVarName = ctx.IDENTIFIER().get(0).getText();
         
-        SimpleParser.ExpressionContext valueExpr = null;
-        SimpleParser.ExpressionContext scaleExpr = null;
-        int exprCount = 0;
-        
-        for (int i = 0; i < ctx.getChildCount(); i++) {
-            ParseTree child = ctx.getChild(i);
-            if (child instanceof SimpleParser.ExpressionContext) {
-                if (exprCount == 0) {
-                    valueExpr = (SimpleParser.ExpressionContext) child;
-                } else if (exprCount == 1) {
-                    scaleExpr = (SimpleParser.ExpressionContext) child;
-                }
-                exprCount++;
-            }
+        Object valueObj = null;
+        Object scaleObj = null;
+
+        ParseTree arg1 = ctx.getChild(5);
+        ParseTree arg2 = ctx.getChild(7);
+
+        valueObj = resolveToNumber(arg1);
+        scaleObj = resolveToNumber(arg2);
+
+        try {
+            double sourceValue = ((Number) valueObj).doubleValue();
+            int scaleValue = ((Number) scaleObj).intValue();
+
+            BigDecimal bd = BigDecimal.valueOf(sourceValue);
+            bd = bd.setScale(scaleValue, RoundingMode.HALF_UP);
+            double result = bd.doubleValue();
+
+            trackMemoryBeforeAssignment(resultVarName, result);
+            variables.put(resultVarName, result);
+            trackMemoryAfterAssignment(resultVarName, result);
+            
+            System.out.println("ROUND: " + sourceValue + " auf " + scaleValue + " Stellen -> " + result);
+        } catch (Exception e) {
+            System.out.println("Fehler in Round-Logik: " + e.getMessage());
+        }
+    }
+
+
+    // Hilfsmethode für Round: Verwandelt ParseTree-Knoten sicher in Zahlen
+    private static Object resolveToNumber(ParseTree node) {
+        if (node instanceof SimpleParser.ExpressionContext) {
+            return evaluateExpression((SimpleParser.ExpressionContext) node);
         }
         
-        if (valueExpr == null || scaleExpr == null) {
-            throw new RuntimeException("Round benötigt zwei Ausdrücke (Wert und Nachkommastellen).");
+        String text = node.getText();
+        if (variables.containsKey(text)) {
+            return variables.get(text);
         }
-
-        Object valueObj = evaluateExpression(valueExpr);
-        Object scaleObj = evaluateExpression(scaleExpr);
-
-        if (!(valueObj instanceof Double sourceValue) || !(scaleObj instanceof Double scaleDouble)) {
-            throw new RuntimeException("Round-Funktion benötigt zwei numerische Argumente.");
+        try {
+            return Double.parseDouble(text);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Konnte '" + text + "' nicht als Zahl auswerten.");
         }
+    }
 
-        int scaleValue = scaleDouble.intValue();
-        
-        if (scaleValue < 0) {
-            throw new RuntimeException("Die Anzahl der Nachkommastellen muss >= 0 sein.");
+    // Hilfsmethode zur Auflösung eines Werts (Variable oder Zahl)
+    private static Object resolveValue(String input) {
+        if (variables.containsKey(input)) {
+            return variables.get(input);
         }
-
-        BigDecimal bd = BigDecimal.valueOf(sourceValue);
-        bd = bd.setScale(scaleValue, RoundingMode.HALF_UP); 
-
-        double result = bd.doubleValue();
-
-        trackMemoryBeforeAssignment(resultVarName, result);
-        variables.put(resultVarName, result);
-        trackMemoryAfterAssignment(resultVarName, result);
-        
-        System.out.println("ROUNDFUNCTION: Round(" + sourceValue + ", " + scaleValue + ") -> " + resultVarName + " = " + result);
-        printMemoryStats();
+        try {
+            return Double.parseDouble(input);
+        } catch (NumberFormatException e) {
+            return input; // Falls es ein String ist
+        }
     }
 
     //Zufallszahl generieren
