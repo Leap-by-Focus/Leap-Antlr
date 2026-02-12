@@ -425,16 +425,6 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitMinFunctionCall(SimpleParser.MinFunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SimpleParser#numberList}.
-	 * @param ctx the parse tree
-	 */
-	void enterNumberList(SimpleParser.NumberListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SimpleParser#numberList}.
-	 * @param ctx the parse tree
-	 */
-	void exitNumberList(SimpleParser.NumberListContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SimpleParser#minListFunctionStmt}.
 	 * @param ctx the parse tree
 	 */
@@ -654,4 +644,14 @@ public interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLengthAccessExpr(SimpleParser.LengthAccessExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#rightFunctionStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterRightFunctionStmt(SimpleParser.RightFunctionStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#rightFunctionStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitRightFunctionStmt(SimpleParser.RightFunctionStmtContext ctx);
 }

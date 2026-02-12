@@ -496,18 +496,6 @@ public class SimpleBaseListener implements SimpleListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNumberList(SimpleParser.NumberListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNumberList(SimpleParser.NumberListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterMinListFunctionStmt(SimpleParser.MinListFunctionStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -767,6 +755,18 @@ public class SimpleBaseListener implements SimpleListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLengthAccessExpr(SimpleParser.LengthAccessExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRightFunctionStmt(SimpleParser.RightFunctionStmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRightFunctionStmt(SimpleParser.RightFunctionStmtContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -1,0 +1,52 @@
+// =======================================================
+// INTEGRATIONSTEST: LOOP, RESOLVE & RIGHT
+// =======================================================
+
+-- Vorbereitung für resolve() Test
+basisText = "REINIGUNG";
+maxDurchlauf = 4;
+startWert = 1;
+
+print("--- Start der Test-Suite ---");
+
+-- Test des neuen LoopStmt:
+-- Wir nutzen Variablen für Start und Ende (Testet resolve() im Loop)
+loop from startWert to maxDurchlauf {
+    
+    print("----------------------------");
+    print("Durchlauf Nummer:");
+    print(startWert); -- 'startWert' ist hier die Zählvariable
+    
+    -- 1. Test: Right-String mit dynamischer Länge
+    -- Wir extrahieren bei jedem Durchlauf mehr Zeichen von rechts
+    -- Hier wird resolve() für 'basisText' und 'startWert' aufgerufen
+    var ergebnisString.Right(basisText, startWert);
+    
+    print("String-Teil von rechts:");
+    print(ergebnisString);
+    
+    -- 2. Test: Resolve mit mathematischer Funktion innerhalb des Loops
+    -- Berechnet den Absolutwert einer Rechnung
+    negativerWert = startWert * -10;
+    var absBerechnet.Abs(negativerWert);
+    
+    print("Absolutwert von:");
+    print(negativerWert);
+    print("Ergebnis:");
+    print(absBerechnet);
+}
+
+-- 3. Test: Boundary-Check für Right & Resolve
+-- Testet, ob resolve() ein direktes String-Literal und 
+-- eine zu große Zahl (Überlauf) korrekt verarbeitet
+var ueberlauf.Right("TEST", 99);
+print("----------------------------");
+print("Überlauf-Test (Erwartet: TEST):");
+print(ueberlauf);
+
+-- 4. Test: Resolve von nackten Zahlen im Loop
+loop from 1 to 2 {
+    print("Einfacher Zahlen-Loop läuft...");
+}
+
+print("--- Test-Suite Beendet ---");

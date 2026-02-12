@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 > nul
 title Simple Language Interpreter
-color 0A
+color 07
 
 echo.
 echo =================================

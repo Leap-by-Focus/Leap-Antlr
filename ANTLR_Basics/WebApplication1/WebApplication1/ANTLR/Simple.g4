@@ -5,7 +5,6 @@ grammar Simple;
 // bis dahin explizite Listen
 // Garbage Collection "aktivieren"
 //right string methode
-//isgreater und isgreaterorequal
 
 
 // Basisstruktur
@@ -50,6 +49,7 @@ addOp
 multiOp
     : '*'
     | '/'
+    | '%'
     ;
 
 // Datentypen
@@ -58,9 +58,12 @@ constant
     | STRING
     | CHARACTER
     | NULL
+    | BOOL
+    | BINARY
     ;
 
-// Token-Definitionen
+
+// Datentyp-Tokens
 NUMBER
     : [0-9]+ ('.' [0-9]+)?
     | [0-9]+
@@ -69,6 +72,19 @@ NUMBER
 IDENTIFIER
     : [a-zA-Z_][a-zA-Z0-9_]*
     ;
+BOOL: 'true' | 'false';
+STRING: ('"' ~'"'* '"');
+//TEXT: ('"' ~'"'* '"') | ('\'' ~'\''* '\''); -> doppelte Deklaration
+CHARACTER: '\'' (ESC | ~['\\]) '\'';
+fragment ESC: '\\' [btnr"'\\];
+NULL: 'null';
+//BIN: '0' | '1'; -> doppelte Deklaration
+BINARY: '0' | '1';
+
+// Kommentare
+LINE_COMMENT: '//' ~[\r\n]* -> skip;
+ARROW_COMMENT: '--' ~[\r\n]* -> skip;
+
 
 // AS_LONG als ein Token mit optionalem Whitespace
 AS_LONG: 'as' [ \t\r\n]* 'long';
@@ -121,6 +137,7 @@ line
     | leftRangeFunctionStmt
     | concatFunctionStmt
     | containsFunctionStmt
+    | rightFunctionStmt
     ;
 
 block: '{' line* '}';
@@ -154,10 +171,10 @@ expr
     : NUMBER
     | IDENTIFIER
     | STRING
-    | expr OP expr
+    | expr (addOp | multiOp) expr
     ;
 
-OP: '+' | '-' | '*' | '/' | '%';
+//OP: '+' | '-' | '*' | '/' | '%'; doppelte Deklaration
 
 // erledigt -> until-Schleife
 untilStmt
@@ -172,13 +189,13 @@ asLongStmt
 
 // muss noch implementiert werden
 customCompOp
-    : 'isBigger'
-    | 'isSmaller'
+    : 'isSmaller'
     | 'isEqual'
     | 'isNotEqual'
-    | 'isBiggerThan'
-    | 'isSmallerThan'
+    | 'isSmallerOrEqual' //-> neu
     | 'isNotEqualThan'
+    | 'isGreater' //-> neu
+    | 'isGreaterOrEqual' //-> neu
     | '>'
     | '<'
     | '=='
@@ -258,16 +275,12 @@ openFileStmt
 
 // erledigt -> kleinste Zahl 
 minExpr
-    : IDENTIFIER '.' 'Min' '(' numberList ')' ';' #minFunctionCall
-    ;
-
-numberList
-    : NUMBER (',' NUMBER)*
+    : IDENTIFIER '.' 'Min' '(' valueList ')' ';' #minFunctionCall
     ;
 
 // erledigt -> kleineste Zahl aus Liste
 minListFunctionStmt
-    : 'var' IDENTIFIER '.' 'Min' '(' (IDENTIFIER | numberList) ')' ';'
+    : 'var' IDENTIFIER '.' 'Min' '(' (IDENTIFIER | valueList) ')' ';'
     ;
 
 // erledigt -> Absolutwert (immer positiv)
@@ -292,12 +305,12 @@ randomFunctionStmt
 
 // erledigt -> Durchschnitt (Mittelwert)
 meanFunctionStmt
-    : 'var' IDENTIFIER '.' 'Mean' '(' (IDENTIFIER | numberList) ')' ';'
+    : 'var' IDENTIFIER '.' 'Mean' '(' (IDENTIFIER | valueList) ')' ';'
     ;
 
 // erledigt -> Zentralwert (Median)
 medianFunctionStmt
-    : 'var' IDENTIFIER '.' 'Median' '(' (IDENTIFIER | numberList) ')' ';'
+    : 'var' IDENTIFIER '.' 'Median' '(' (IDENTIFIER | valueList) ')' ';'
     ;
 
 // erledigt -> größte Zahl
@@ -374,16 +387,7 @@ lengthAccessExpr
     : IDENTIFIER '.' 'Length'
     ;
 
-// Datentyp-Tokens
-BOOL: 'true' | 'false';
-STRING: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
-TEXT: ('"' ~'"'* '"') | ('\'' ~'\''* '\'');
-CHARACTER: '\'' (ESC | ~['\\]) '\'';
-fragment ESC: '\\' [btnr"'\\];
-NULL: 'null';
-BIN: '0' | '1';
-BINARY: '0' | '1';
-
-// Kommentare (müssen noch implementiert werden)
-LINE_COMMENT: '//' ~[\r\n]* -> skip;
-ARROW_COMMENT: '--' ~[\r\n]* -> skip;
+//rechte Zeichen mit Bereich extrahieren -> noch hinzugefügt
+rightFunctionStmt
+    : 'var' IDENTIFIER '.' 'Right' '(' (IDENTIFIER | STRING) ',' expression ')' ';'
+    ;
