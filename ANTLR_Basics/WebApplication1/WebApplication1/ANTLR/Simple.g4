@@ -72,7 +72,16 @@ NUMBER
 IDENTIFIER
     : [a-zA-Z_][a-zA-Z0-9_]*
     ;
-BOOL: 'true' | 'false';
+
+// Logik & Bedingungen
+IF     : 'if' | 'wenn';
+ELSE   : 'else' | 'sonst';
+WHILE  : 'while' | 'solange';
+LOOP   : 'loop' | 'schleife';
+FROM   : 'from' | 'von';
+TO     : 'to' | 'bis';
+PRINT  : 'print' | 'ausgeben' | 'drucke';
+BOOL   : 'true' | 'false' | 'wahr' | 'falsch';
 STRING: ('"' ~'"'* '"');
 //TEXT: ('"' ~'"'* '"') | ('\'' ~'\''* '\''); -> doppelte Deklaration
 CHARACTER: '\'' (ESC | ~['\\]) '\'';
@@ -138,6 +147,7 @@ line
     | concatFunctionStmt
     | containsFunctionStmt
     | rightFunctionStmt
+    | ifStmt
     ;
 
 block: '{' line* '}';
@@ -147,9 +157,13 @@ compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
 // ---Schleifen und Bedingungen---
 
+ifStmt
+    : IF '(' expression compareOp expression ')' '{' line* '}' (ELSE '{' line* '}')?
+    ;
+
 // erledigt -> for-Schleife
 forStmt
-    : 'for' IDENTIFIER 'from' expr 'to' expr '{' line* '}'
+    : 'for' IDENTIFIER FROM expr TO expr '{' line* '}'
     ;
 
 // erledigt -> repeat-Schleife
@@ -159,12 +173,12 @@ repeatStmt
 
 // erledigt -> loop-Schleife
 loopStmt
-    : 'loop' 'from' expr 'to' expr '{' line* '}'
+    : LOOP FROM expr TO expr '{' line* '}'
     ;
 
 // erledigt -> while-Schleife
 whileStmt
-    : 'while' expr compareOp expr '{' line* '}'
+    : WHILE expr compareOp expr '{' line* '}'
     ;
 
 expr

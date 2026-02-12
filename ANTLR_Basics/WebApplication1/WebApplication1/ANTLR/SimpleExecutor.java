@@ -229,6 +229,9 @@ public class SimpleExecutor {
         else if (tree instanceof TerminalNode){
             return;
         }
+        else if (tree instanceof SimpleParser.IfStmtContext) {
+            processIfStmt((SimpleParser.IfStmtContext) tree);
+        }
     }
 
     private static void updateVariable(String name, Object value) {
@@ -2234,5 +2237,80 @@ public class SimpleExecutor {
         
         System.out.println("CONTAINSFUNCTION: Contains('" + searchString + "' in " + sourceVarName + ") -> " + resultVarName + " = " + result);
         printMemoryStats();
+    }
+
+    //IF-Statement verarbeiten
+    private static void processIfStmt(SimpleParser.IfStmtContext ctx) {
+        // 1. Bedingung extrahieren (Annahme: IF '(' expression compareOp expression ')')
+        SimpleParser.ExpressionContext leftExpr = ctx.expression(0);
+        SimpleParser.CompareOpContext op = ctx.compareOp();
+        SimpleParser.ExpressionContext rightExpr = ctx.expression(1);
+
+        // 2. Bedingung auswerten
+        boolean conditionMet = false;
+        try {
+            Object leftVal = evaluateExpression(leftExpr);
+            Object rightVal = evaluateExpression(rightExpr);
+            String operator = op.getText();
+
+            conditionMet = compareValues(leftVal, operator, rightVal);
+        } catch (Exception e) {
+            System.out.println("FEHLER in IF-Bedingung: " + e.getMessage());
+        }
+
+        if (conditionMet) {
+            System.out.println("IF: Bedingung wahr - führe Block aus");
+            executeBlockOrLine(ctx, true);
+        } else if (ctx.ELSE() != null) {
+            System.out.println("IF: Bedingung falsch - führe ELSE aus");
+            executeBlockOrLine(ctx, false);
+        }
+    }
+
+    // Hilfsmethode zum Vergleichen (basierend auf deiner Logik)
+    private static boolean compareValues(Object leftVal, String operator, Object rightVal) {
+        if (leftVal instanceof Number && rightVal instanceof Number) {
+            double l = ((Number) leftVal).doubleValue();
+            double r = ((Number) rightVal).doubleValue();
+            switch (operator) {
+                case "==": return Math.abs(l - r) < 0.000001;
+                case "!=": return Math.abs(l - r) > 0.000001;
+                case "<":  return l < r;
+                case "<=": return l <= r;
+                case ">":  return l > r;
+                case ">=": return l >= r;
+            }
+        }
+        if (leftVal instanceof String && rightVal instanceof String) {
+            switch (operator) {
+                case "==": return leftVal.equals(rightVal);
+                case "!=": return !leftVal.equals(rightVal);
+            }
+        }
+        return false;
+    }
+
+    // Hilfsmethode um den richtigen Block innerhalb des IF/ELSE zu finden
+    private static void executeBlockOrLine(SimpleParser.IfStmtContext ctx, boolean isIfBranch) {
+        boolean elseReached = false;
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            ParseTree child = ctx.getChild(i);
+            
+            if (child instanceof TerminalNode && child.getText().equalsIgnoreCase("else")) {
+                elseReached = true;
+                continue;
+            }
+
+            if (isIfBranch && !elseReached) {
+                if (child instanceof SimpleParser.LineContext || child instanceof SimpleParser.BlockContext) {
+                    processTree(child);
+                }
+            } 
+            else if (!isIfBranch && elseReached) {
+                if (child instanceof SimpleParser.LineContext || child instanceof SimpleParser.BlockContext) {
+                    processTree(child);
+                }
+            }
+        }
     }
 }
