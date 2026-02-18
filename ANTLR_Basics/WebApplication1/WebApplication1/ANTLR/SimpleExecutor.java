@@ -229,8 +229,12 @@ public class SimpleExecutor {
         else if (tree instanceof TerminalNode){
             return;
         }
+        // ---Bedingungen---
         else if (tree instanceof SimpleParser.IfStmtContext) {
             processIfStmt((SimpleParser.IfStmtContext) tree);
+        }
+        else if (tree instanceof SimpleParser.SwitchStmtContext) {
+            processSwitchStmt((SimpleParser.SwitchStmtContext) tree);
         }
     }
 
@@ -399,7 +403,15 @@ public class SimpleExecutor {
     }
     
     private static void processFunctionCall(SimpleParser.FunctionCallContext func) {
-        if ("print".equals(func.IDENTIFIER().getText()) && func.expression() != null) {
+        // Holt den Namen entweder vom IDENTIFIER oder vom PRINT Token
+        String funcName = "";
+        if (func.IDENTIFIER() != null) {
+            funcName = func.IDENTIFIER().getText();
+        } else if (func.PRINT() != null) {
+            funcName = func.PRINT().getText();
+        }
+
+        if ("print".equals(funcName) && func.expression() != null) {
             Object value = evaluateExpression(func.expression());
             System.out.println("Ausgabe: " + value);
         }
@@ -2239,7 +2251,7 @@ public class SimpleExecutor {
         printMemoryStats();
     }
 
-    //IF-Statement verarbeiten
+    //if-Statement verarbeiten
     private static void processIfStmt(SimpleParser.IfStmtContext ctx) {
         // 1. Bedingung extrahieren (Annahme: IF '(' expression compareOp expression ')')
         SimpleParser.ExpressionContext leftExpr = ctx.expression(0);
@@ -2261,13 +2273,13 @@ public class SimpleExecutor {
         if (conditionMet) {
             System.out.println("IF: Bedingung wahr - führe Block aus");
             executeBlockOrLine(ctx, true);
-        } else if (ctx.ELSE() != null) {
+        } else if (ctx.SONST() != null) {
             System.out.println("IF: Bedingung falsch - führe ELSE aus");
             executeBlockOrLine(ctx, false);
         }
     }
 
-    // Hilfsmethode zum Vergleichen (basierend auf deiner Logik)
+    // Hilfsmethode zum Vergleichen
     private static boolean compareValues(Object leftVal, String operator, Object rightVal) {
         if (leftVal instanceof Number && rightVal instanceof Number) {
             double l = ((Number) leftVal).doubleValue();
@@ -2310,6 +2322,30 @@ public class SimpleExecutor {
                 if (child instanceof SimpleParser.LineContext || child instanceof SimpleParser.BlockContext) {
                     processTree(child);
                 }
+            }
+        }
+    }
+
+    // Switch-case-Statement
+    private static void processSwitchStmt(SimpleParser.SwitchStmtContext ctx) {
+        Object switchValue = evaluateExpression(ctx.expression());
+        boolean foundMatch = false;
+
+        for (SimpleParser.CaseStmtContext caseCtx : ctx.caseStmt()) {
+            Object caseValue = resolve(caseCtx.constant());
+
+            if (compareValues(switchValue, "==", caseValue)) {
+                foundMatch = true;
+                for (SimpleParser.LineContext line : caseCtx.line()) {
+                    processTree(line);
+                }
+                break; 
+            }
+        }
+
+        if (!foundMatch && ctx.defaultStmt() != null) {
+            for (SimpleParser.LineContext line : ctx.defaultStmt().line()) {
+                processTree(line);
             }
         }
     }

@@ -203,6 +203,46 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitCompareOp(SimpleParser.CompareOpContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SimpleParser#ifStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfStmt(SimpleParser.IfStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#ifStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfStmt(SimpleParser.IfStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#switchStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterSwitchStmt(SimpleParser.SwitchStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#switchStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitSwitchStmt(SimpleParser.SwitchStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#caseStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterCaseStmt(SimpleParser.CaseStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#caseStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitCaseStmt(SimpleParser.CaseStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#defaultStmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefaultStmt(SimpleParser.DefaultStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#defaultStmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefaultStmt(SimpleParser.DefaultStmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SimpleParser#forStmt}.
 	 * @param ctx the parse tree
 	 */

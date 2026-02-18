@@ -24,7 +24,7 @@ assignment
 
 // Funktionsaufrufe
 functionCall
-    : IDENTIFIER '(' expression? ')'
+    : (IDENTIFIER | PRINT) '(' expression? ')'
     ;
 
 // Expressions
@@ -69,13 +69,8 @@ NUMBER
     | [0-9]+
     ;
 
-IDENTIFIER
-    : [a-zA-Z_][a-zA-Z0-9_]*
-    ;
-
 // Logik & Bedingungen
 IF     : 'if' | 'wenn';
-ELSE   : 'else' | 'sonst';
 WHILE  : 'while' | 'solange';
 LOOP   : 'loop' | 'schleife';
 FROM   : 'from' | 'von';
@@ -83,6 +78,9 @@ TO     : 'to' | 'bis';
 PRINT  : 'print' | 'ausgeben' | 'drucke';
 BOOL   : 'true' | 'false' | 'wahr' | 'falsch';
 STRING: ('"' ~'"'* '"');
+SONST    : 'else' | 'default' | 'sonst';
+SWITCH  : 'switch' | 'entscheidung' | 'wahl';
+CASE    : 'case' | 'fall';
 //TEXT: ('"' ~'"'* '"') | ('\'' ~'\''* '\''); -> doppelte Deklaration
 CHARACTER: '\'' (ESC | ~['\\]) '\'';
 fragment ESC: '\\' [btnr"'\\];
@@ -94,6 +92,9 @@ BINARY: '0' | '1';
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 ARROW_COMMENT: '--' ~[\r\n]* -> skip;
 
+IDENTIFIER
+    : [a-zA-Z_][a-zA-Z0-9_]*
+    ;
 
 // AS_LONG als ein Token mit optionalem Whitespace
 AS_LONG: 'as' [ \t\r\n]* 'long';
@@ -148,6 +149,7 @@ line
     | containsFunctionStmt
     | rightFunctionStmt
     | ifStmt
+    | switchStmt
     ;
 
 block: '{' line* '}';
@@ -157,8 +159,24 @@ compareOp: '==' | '!=' | '<' | '<=' | '>' | '>=';
 
 // ---Schleifen und Bedingungen---
 
+// erledigt -> if-Bedingung
 ifStmt
-    : IF '(' expression compareOp expression ')' '{' line* '}' (ELSE '{' line* '}')?
+    : IF '(' expression compareOp expression ')' '{' line* '}' (SONST '{' line* '}')?
+    ;
+
+// wird erledigt -> switch-case-Bedingung
+switchStmt
+    : SWITCH '(' expression ')' '{' caseStmt* defaultStmt? '}'
+    ;
+
+//für switch-case erforderlich!
+caseStmt
+    : CASE constant ':' line*
+    ;
+
+//für switch-case erforderlich!
+defaultStmt
+    : SONST ':' line*
     ;
 
 // erledigt -> for-Schleife
