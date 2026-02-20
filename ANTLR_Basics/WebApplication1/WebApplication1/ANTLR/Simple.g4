@@ -27,16 +27,33 @@ functionCall
     : (IDENTIFIER | PRINT) '(' expression? ')'
     ;
 
+//Objektorientiert -> Collections
+COLLECTION_TYPE
+    : 'LinkedList' | 'List' | 'Set' | 'Map' | 'HashMap' 
+    | 'Stack' | 'Dictionary' | 'Tuple' | 'Queue'
+    ;
+
+//Methoden für Collections -> add,put,remove,delete,sort,getAll,getBy,getByIndex
+
+method_type
+    : 'add' | 'put' | 'remove' | 'delete' | 'sort' | 'getAll' | 'getBy' | 'getByIndex' | 'sort'
+    ;
+
 // Expressions
 expression
-    : '-' expression                          #UnaryMinusExpression
-    | expression addOp expression             #AdditiveExpression
-    | expression multiOp expression           #MultiplicateExpression
-    | '(' expression ')'                      #ParenthesizedExpression
-    | constant                                #ConstantExpression
-    | IDENTIFIER                              #IdentifierExpression
-    | 'new' IDENTIFIER '(' ')'                #ObjectCreationExpression
-    | lengthAccessExpr                        #LengthAccessExpression 
+    : '-' expression                                #UnaryMinusExpression
+    | expression addOp expression                   #AdditiveExpression
+    | expression multiOp expression                 #MultiplicateExpression
+    | '(' expression ')'                            #ParenthesizedExpression
+    | constant                                      #ConstantExpression
+    | IDENTIFIER                                    #IdentifierExpression
+    | 'new' IDENTIFIER '(' ')'                      #ObjectCreationExpression
+    | lengthAccessExpr                              #LengthAccessExpression 
+    | 'new' COLLECTION_TYPE '(' expressionList? ')' #ObjectCreationExpression
+    ;
+
+expressionList
+    : expression (',' expression)*
     ;
 
 // addieren und subtrahieren
@@ -61,7 +78,6 @@ constant
     | BOOL
     | BINARY
     ;
-
 
 // Datentyp-Tokens
 NUMBER

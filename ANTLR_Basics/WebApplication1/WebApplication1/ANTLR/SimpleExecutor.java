@@ -1491,6 +1491,22 @@ public class SimpleExecutor {
             return length;
         }
         throw new RuntimeException("Unbekannter Expression-Typ: " + expr.getClass().getSimpleName());
+        else if (expr instanceof SimpleParser.ObjectCreationExpressionContext) {
+            String type = ((SimpleParser.ObjectCreationExpressionContext) expr).COLLECTION_TYPE().getText();
+            
+            switch (type) {
+                case "LinkedList": return new LinkedList<Object>();
+                case "List":       return new ArrayList<Object>();
+                case "Set":        return new HashSet<Object>();
+                case "Map":        
+                case "HashMap":    
+                case "Dictionary": return new HashMap<Object, Object>();
+                case "Stack":      return new Stack<Object>();
+                case "Tuple":      
+                    return new Object[0]; // Initialisierung müsste über expressionList erfolgen
+                default: return null;
+            }
+        }
     }
     
     // Block verarbeiten
