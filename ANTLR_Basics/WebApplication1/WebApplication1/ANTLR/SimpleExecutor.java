@@ -1502,11 +1502,10 @@ public class SimpleExecutor {
                 case "HashMap":    
                 case "Dictionary": return new HashMap<Object, Object>();
                 case "Stack":      return new Stack<Object>();
-                case "Tuple":      
-                    return new Object[0]; // Initialisierung müsste über expressionList erfolgen
-                default: return null;
+                case "Tuple":      return new Object[0]; 
+                default:           return null;
             }
-        }
+        } //
     }
     
     // Block verarbeiten
@@ -2364,5 +2363,106 @@ public class SimpleExecutor {
                 processTree(line);
             }
         }
+    }
+
+    //für die Collections
+    private static void processMethodCall(SimpleParser.MethodCallContext ctx) {
+        //Basis-Informationen extrahieren
+        String varName = ctx.IDENTIFIER().getText();
+        String method = ctx.methodType().getText();
+        Object obj = variables.get(varName);
+
+        //Sicherheits-Check: Existiert das Objekt?
+        if (obj == null) {
+            throw new RuntimeException("Fehler: Die Variable '" + varName + "' ist nicht definiert oder null.");
+        }
+
+        // Argumente auswerten
+        List<Object> args = new ArrayList<>();
+        if (ctx.argumentList() != null) {
+            for (SimpleParser.ExpressionContext expr : ctx.argumentList().expression()) {
+                args.add(evaluateExpression(expr));
+            }
+        }
+
+        //Methoden-Logik basierend auf dem Namen
+        switch (method) {
+            case "add":
+                if (obj instanceof Collection) {
+                    ((Collection<Object>) obj).add(args.get(0));
+                } else if (obj instanceof Stack) {
+                    ((Stack<Object>) obj).push(args.get(0));
+                } else {
+                    throw new RuntimeException(".add ist für den Typ " + obj.getClass().getSimpleName() + " nicht verfügbar.");
+                }
+                break;
+
+            case "put":
+                if (obj instanceof Map) {
+                    if (args.size() < 2) throw new RuntimeException(".put benötigt Key und Value!");
+                    ((Map<Object, Object>) obj).put(args.get(0), args.get(1));
+                } else {
+                    throw new RuntimeException(".put kann nur auf Dictionaries/Maps angewendet werden.");
+                }
+                break;
+
+            case "delete":
+            case "remove":
+                if (obj instanceof Collection) {
+                    ((Collection<?>) obj).remove(args.get(0));
+                } else if (obj instanceof Map) {
+                    ((Map<?, ?>) obj).remove(args.get(0));
+                }
+                break;
+
+            case "getAll":
+                // Gibt die gesamte Collection aus
+                System.out.println("Inhalt von " + varName + ": " + obj.toString());
+                break;
+
+            case "getBy":
+                // Universal-Zugriff: Key bei Map, Index bei List
+                Object result = null;
+                if (obj instanceof Map) {
+                    result = ((Map<?, ?>) obj).get(args.get(0));
+                } else if (obj instanceof List) {
+                    int idx = ((Number) args.get(0)).intValue();
+                    result = ((List<?>) obj).get(idx);
+                }
+                System.out.println("Ergebnis getBy: " + result);
+                break;
+
+            case "getByIndex":
+                // Expliziter Zugriff über numerischen Index
+                if (!(args.get(0) instanceof Number)) {
+                    throw new RuntimeException(".getByIndex erwartet eine Zahl!");
+                }
+                int index = ((Number) args.get(0)).intValue();
+                
+                if (obj instanceof List) {
+                    System.out.println("Element an Index " + index + ": " + ((List<?>) obj).get(index));
+                } else if (obj instanceof Object[]) { // Für Tuples
+                    System.out.println("Tuple-Wert an Index " + index + ": " + ((Object[]) obj)[index]);
+                } else if (obj instanceof Stack) {
+                    System.out.println("Stack-Wert an Index " + index + ": " + ((Stack<?>) obj).get(index));
+                } else {
+                    throw new RuntimeException("Index-Zugriff nicht möglich für " + obj.getClass().getSimpleName());
+                }
+                break;
+
+            case "sort":
+                if (obj instanceof List) {
+                    Collections.sort((List) obj);
+                    System.out.println(varName + " wurde sortiert.");
+                } else {
+                    System.out.println("WARNUNG: .sort() ist nur für Listen verfügbar.");
+                }
+                break;
+
+            default:
+                throw new RuntimeException("Unbekannte Methode: ." + method);
+        }
+
+        updateMemoryStats(varName, obj);
     }
 }

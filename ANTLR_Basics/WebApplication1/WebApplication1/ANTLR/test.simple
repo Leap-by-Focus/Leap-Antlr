@@ -1,4 +1,12 @@
-entscheidung(x) {
-    fall 1: print("Eins");
-    sonst: print("Unbekannt");
-}
+namen = new List();
+namen.add("Max");
+namen.add("Moritz");
+
+// Zugriff über Index
+erster = namen.getByIndex(0); 
+print(erster); // Ausgabe: Max
+
+// Vergleich zu getBy (Universal)
+alter = new Dictionary();
+alter.put("Max", 15);
+print(alter.getBy("Max")); // Ausgabe: 15
