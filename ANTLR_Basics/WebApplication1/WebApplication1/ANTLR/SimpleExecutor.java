@@ -236,6 +236,9 @@ public class SimpleExecutor {
         else if (tree instanceof SimpleParser.SwitchStmtContext) {
             processSwitchStmt((SimpleParser.SwitchStmtContext) tree);
         }
+        else if (tree instanceof SimpleParser.MethodCallContext) {
+            processMethodCall((SimpleParser.MethodCallContext) tree);
+        }
     }
 
     private static void updateVariable(String name, Object value) {
@@ -1349,163 +1352,92 @@ public class SimpleExecutor {
     private static Object evaluateExpression(SimpleParser.ExpressionContext expr) {
         if (expr instanceof SimpleParser.IdentifierExpressionContext) {
             String varName = ((SimpleParser.IdentifierExpressionContext) expr).IDENTIFIER().getText();
-            if (!variables.containsKey(varName)) {
-                // Variable existiert nicht - für IsNull-Funktion wichtig
-                return null;
-            }
             return variables.get(varName);
         }
         else if (expr instanceof SimpleParser.ConstantExpressionContext) {
-            SimpleParser.ConstantContext constant = ((SimpleParser.ConstantExpressionContext) expr).constant();
-            
-            if (constant.NUMBER() != null) {
-                try {
-                    return Double.parseDouble(constant.NUMBER().getText());
-                } catch (NumberFormatException e) {
-                    return 0.0;
-                }
-            }
-            
-            if (constant.STRING() != null) {
-                String text = constant.STRING().getText();
-                // Entferne die Anführungszeichen
-                if (text.length() >= 2) {
-                    text = text.substring(1, text.length() - 1);
-                }
-                // Ersetze Escape-Sequenzen
-                text = text.replace("\\n", "\n")
-                        .replace("\\t", "\t")
-                        .replace("\\r", "\r")
-                        .replace("\\\"", "\"")
-                        .replace("\\'", "'")
-                        .replace("\\\\", "\\");
-                return text;
-            }
-            
-            if (constant.CHARACTER() != null) {
-                String text = constant.CHARACTER().getText();
-                if (text.length() >= 3) {
-                    char c = text.charAt(1);
-                    if (c == '\\' && text.length() >= 4) {
-                        // Escape-Sequenz
-                        char esc = text.charAt(2);
-                        switch (esc) {
-                            case 'n': return '\n';
-                            case 't': return '\t';
-                            case 'r': return '\r';
-                            case '"': return '"';
-                            case '\'': return '\'';
-                            case '\\': return '\\';
-                        }
-                    }
-                    return c;
-                }
-                return ' ';
-            }
-            
-            if (constant.NULL() != null) {
-                return null;  // null zurückgeben
-            }
-            
-            throw new RuntimeException("Unbekannter Constant-Typ");
+            SimpleParser.ConstantContext c = ((SimpleParser.ConstantExpressionContext) expr).constant();
+            if (c.NUMBER() != null) return Double.parseDouble(c.NUMBER().getText());
+            if (c.STRING() != null) return c.STRING().getText().replaceAll("^\"|\"$", "");
+            return null;
         }
         else if (expr instanceof SimpleParser.AdditiveExpressionContext) {
-            SimpleParser.AdditiveExpressionContext addExpr = (SimpleParser.AdditiveExpressionContext) expr;
-            Object left = evaluateExpression(addExpr.expression(0));
-            Object right = evaluateExpression(addExpr.expression(1));
-            
-            // Für String-Konkatenation
-            if (left == null || right == null) {
-                // null + etwas = etwas als String
-                return (left == null ? "null" : left.toString()) + 
-                    (right == null ? "null" : right.toString());
+            Object left = evaluateExpression(((SimpleParser.AdditiveExpressionContext) expr).expression(0));
+            Object right = evaluateExpression(((SimpleParser.AdditiveExpressionContext) expr).expression(1));
+            String op = ((SimpleParser.AdditiveExpressionContext) expr).addOp().getText();
+            if (left instanceof Number && right instanceof Number) {
+                return op.equals("+") ? ((Number)left).doubleValue() + ((Number)right).doubleValue() : ((Number)left).doubleValue() - ((Number)right).doubleValue();
             }
-            
-            if (left instanceof String || right instanceof String) {
-                return left.toString() + right.toString();
-            } 
-            // Für numerische Operationen
-            else if (left instanceof Number && right instanceof Number) {
-                double l = ((Number) left).doubleValue();
-                double r = ((Number) right).doubleValue();
-                if ("+".equals(addExpr.addOp().getText())) return l + r;
-                if ("-".equals(addExpr.addOp().getText())) return l - r;
-            }
-            throw new RuntimeException("Inkompatible Typen für Addition: " + left + " und " + right);
+            return left.toString() + right.toString();
         }
         else if (expr instanceof SimpleParser.MultiplicateExpressionContext) {
-            SimpleParser.MultiplicateExpressionContext multExpr = (SimpleParser.MultiplicateExpressionContext) expr;
-            Object left = evaluateExpression(multExpr.expression(0));
-            Object right = evaluateExpression(multExpr.expression(1));
-            
-            if (left == null || right == null) {
-                throw new RuntimeException("Null-Werte für Multiplikation/Division nicht erlaubt");
-            }
-            
-            if (!(left instanceof Number && right instanceof Number)) {
-                throw new RuntimeException("Multiplikation/Division benötigt Zahlen: " + left + " und " + right);
-            }
-            
-            double l = ((Number) left).doubleValue();
-            double r = ((Number) right).doubleValue();
-            
-            if ("*".equals(multExpr.multiOp().getText())) return l * r;
-            if ("/".equals(multExpr.multiOp().getText())) {
-                if (r == 0) throw new ArithmeticException("Division durch Null");
-                return l / r;
-            }
-            throw new RuntimeException("Unbekannter Multiplikationsoperator");
+            Object left = evaluateExpression(((SimpleParser.MultiplicateExpressionContext) expr).expression(0));
+            Object right = evaluateExpression(((SimpleParser.MultiplicateExpressionContext) expr).expression(1));
+            String op = ((SimpleParser.MultiplicateExpressionContext) expr).multiOp().getText();
+            double l = ((Number)left).doubleValue();
+            double r = ((Number)right).doubleValue();
+            return op.equals("*") ? l * r : l / r;
         }
         else if (expr instanceof SimpleParser.ParenthesizedExpressionContext) {
             return evaluateExpression(((SimpleParser.ParenthesizedExpressionContext) expr).expression());
         }
-        else if (expr instanceof SimpleParser.ObjectCreationExpressionContext) {
-            String type = ((SimpleParser.ObjectCreationExpressionContext) expr).IDENTIFIER().getText();
-            System.out.println("Objekt erstellt: " + type);
-            return "new " + type + "()";
+        else if (expr instanceof SimpleParser.UnaryMinusExpressionContext) {
+            return -((Number)evaluateExpression(((SimpleParser.UnaryMinusExpressionContext) expr).expression())).doubleValue();
         }
-        else if (expr instanceof SimpleParser.UnaryMinusExpressionContext unaryExpr){
-            Object val = evaluateExpression(unaryExpr.expression());
-
-            if (val instanceof Number){
-                return -((Number) val).doubleValue();
-            } else {
-                throw new RuntimeException("Unäres Minus nur für Zahlen erlaubt: " + val);
-            }
+        else if (expr instanceof SimpleParser.LengthAccessExpressionContext) {
+            String s = (String)variables.get(((SimpleParser.LengthAccessExpressionContext) expr).lengthAccessExpr().IDENTIFIER().getText());
+            return (double)s.length();
         }
-        else if (expr instanceof SimpleParser.LengthAccessExpressionContext lengthExprCtx) {
-    
-            SimpleParser.LengthAccessExprContext lengthCtx = lengthExprCtx.lengthAccessExpr();
-
-            String varName = lengthCtx.IDENTIFIER().getText();
-            
-            Object value = variables.get(varName);
-            
-            if (!(value instanceof String s)) {
-                throw new RuntimeException("Length-Zugriff nur für Strings erlaubt, gefunden: " + value.getClass().getSimpleName());
-            }
-            
-            double length = (double) s.length();
-            
-            System.out.println("LENGTHACCESS: " + varName + ".Length -> " + length);
-            return length;
-        }
-        throw new RuntimeException("Unbekannter Expression-Typ: " + expr.getClass().getSimpleName());
         else if (expr instanceof SimpleParser.ObjectCreationExpressionContext) {
             String type = ((SimpleParser.ObjectCreationExpressionContext) expr).COLLECTION_TYPE().getText();
-            
             switch (type) {
-                case "LinkedList": return new LinkedList<Object>();
-                case "List":       return new ArrayList<Object>();
-                case "Set":        return new HashSet<Object>();
-                case "Map":        
-                case "HashMap":    
-                case "Dictionary": return new HashMap<Object, Object>();
-                case "Stack":      return new Stack<Object>();
-                case "Tuple":      return new Object[0]; 
+                case "LinkedList": return new java.util.LinkedList<Object>();
+                case "List":       return new java.util.ArrayList<Object>();
+                case "Set":        return new java.util.HashSet<Object>();
+                case "Stack":      return new java.util.Stack<Object>();
+                case "HashMap": case "Dictionary": case "Map": return new java.util.HashMap<Object, Object>();
+                case "Tuple":      return new Object[5];
                 default:           return null;
             }
-        } //
+        }
+        else if (expr instanceof SimpleParser.CallMethodExpressionContext) {
+            return handleMethodCallReturnValue((SimpleParser.CallMethodExpressionContext) expr);
+        }
+        
+        throw new RuntimeException("Unbekannter Expression-Typ: " + expr.getClass().getSimpleName());
+    }
+
+    private static Object handleMethodCallReturnValue(SimpleParser.CallMethodExpressionContext ctx) {
+        SimpleParser.MethodCallExpressionContext methodCtx = ctx.methodCallExpression();
+        
+        String varName = methodCtx.IDENTIFIER().getText();
+        String method = methodCtx.methodType().getText();
+        Object obj = variables.get(varName);
+
+        if (obj == null) throw new RuntimeException("Variable '" + varName + "' nicht gefunden.");
+
+        // Argumente auswerten
+        List<Object> args = new ArrayList<>();
+        if (methodCtx.argumentList() != null) {
+            for (var expr : methodCtx.argumentList().expression()) {
+                args.add(evaluateExpression(expr));
+            }
+        }
+
+        // Logik mit Rückgabewerten
+        switch (method) {
+            case "getByIndex":
+                int idx = ((Number) args.get(0)).intValue();
+                if (obj instanceof List) return ((List<?>) obj).get(idx);
+                break;
+            case "getBy":
+                if (obj instanceof Map) return ((Map<?, ?>) obj).get(args.get(0));
+                if (obj instanceof List) return ((List<?>) obj).get(((Number)args.get(0)).intValue());
+                break;
+            case "getAll":
+                return obj.toString();
+        }
+        
+        return null; 
     }
     
     // Block verarbeiten
@@ -2367,17 +2299,12 @@ public class SimpleExecutor {
 
     //für die Collections
     private static void processMethodCall(SimpleParser.MethodCallContext ctx) {
-        //Basis-Informationen extrahieren
         String varName = ctx.IDENTIFIER().getText();
         String method = ctx.methodType().getText();
         Object obj = variables.get(varName);
 
-        //Sicherheits-Check: Existiert das Objekt?
-        if (obj == null) {
-            throw new RuntimeException("Fehler: Die Variable '" + varName + "' ist nicht definiert oder null.");
-        }
+        if (obj == null) throw new RuntimeException("Variable '" + varName + "' nicht gefunden.");
 
-        // Argumente auswerten
         List<Object> args = new ArrayList<>();
         if (ctx.argumentList() != null) {
             for (SimpleParser.ExpressionContext expr : ctx.argumentList().expression()) {
@@ -2385,84 +2312,35 @@ public class SimpleExecutor {
             }
         }
 
-        //Methoden-Logik basierend auf dem Namen
         switch (method) {
             case "add":
-                if (obj instanceof Collection) {
-                    ((Collection<Object>) obj).add(args.get(0));
-                } else if (obj instanceof Stack) {
-                    ((Stack<Object>) obj).push(args.get(0));
-                } else {
-                    throw new RuntimeException(".add ist für den Typ " + obj.getClass().getSimpleName() + " nicht verfügbar.");
-                }
+                if (obj instanceof Collection) ((Collection<Object>) obj).add(args.get(0));
+                else if (obj instanceof Stack) ((Stack<Object>) obj).push(args.get(0));
                 break;
-
             case "put":
-                if (obj instanceof Map) {
-                    if (args.size() < 2) throw new RuntimeException(".put benötigt Key und Value!");
-                    ((Map<Object, Object>) obj).put(args.get(0), args.get(1));
-                } else {
-                    throw new RuntimeException(".put kann nur auf Dictionaries/Maps angewendet werden.");
-                }
+                if (obj instanceof Map) ((Map<Object, Object>) obj).put(args.get(0), args.get(1));
                 break;
-
-            case "delete":
             case "remove":
-                if (obj instanceof Collection) {
-                    ((Collection<?>) obj).remove(args.get(0));
-                } else if (obj instanceof Map) {
-                    ((Map<?, ?>) obj).remove(args.get(0));
-                }
+            case "delete":
+                if (obj instanceof Collection) ((Collection<?>) obj).remove(args.get(0));
+                else if (obj instanceof Map) ((Map<?, ?>) obj).remove(args.get(0));
                 break;
-
             case "getAll":
-                // Gibt die gesamte Collection aus
-                System.out.println("Inhalt von " + varName + ": " + obj.toString());
+                System.out.println("Inhalt von " + varName + ": " + obj);
                 break;
-
-            case "getBy":
-                // Universal-Zugriff: Key bei Map, Index bei List
-                Object result = null;
-                if (obj instanceof Map) {
-                    result = ((Map<?, ?>) obj).get(args.get(0));
-                } else if (obj instanceof List) {
-                    int idx = ((Number) args.get(0)).intValue();
-                    result = ((List<?>) obj).get(idx);
-                }
-                System.out.println("Ergebnis getBy: " + result);
-                break;
-
             case "getByIndex":
-                // Expliziter Zugriff über numerischen Index
-                if (!(args.get(0) instanceof Number)) {
-                    throw new RuntimeException(".getByIndex erwartet eine Zahl!");
-                }
-                int index = ((Number) args.get(0)).intValue();
-                
-                if (obj instanceof List) {
-                    System.out.println("Element an Index " + index + ": " + ((List<?>) obj).get(index));
-                } else if (obj instanceof Object[]) { // Für Tuples
-                    System.out.println("Tuple-Wert an Index " + index + ": " + ((Object[]) obj)[index]);
-                } else if (obj instanceof Stack) {
-                    System.out.println("Stack-Wert an Index " + index + ": " + ((Stack<?>) obj).get(index));
-                } else {
-                    throw new RuntimeException("Index-Zugriff nicht möglich für " + obj.getClass().getSimpleName());
-                }
+                if (obj instanceof List) System.out.println("Element: " + ((List<?>) obj).get(((Number)args.get(0)).intValue()));
                 break;
-
-            case "sort":
-                if (obj instanceof List) {
-                    Collections.sort((List) obj);
-                    System.out.println(varName + " wurde sortiert.");
-                } else {
-                    System.out.println("WARNUNG: .sort() ist nur für Listen verfügbar.");
-                }
-                break;
-
-            default:
-                throw new RuntimeException("Unbekannte Methode: ." + method);
         }
-
+        
+        // Memory Tracking aktualisieren
         updateMemoryStats(varName, obj);
+    }
+    private static void updateMemoryStats(String varName, Object obj) {
+        long currentSize = estimateMemoryUsage(obj);
+        
+        memoryStats.totalAllocated += currentSize; 
+        
+        printMemoryStats();
     }
 }

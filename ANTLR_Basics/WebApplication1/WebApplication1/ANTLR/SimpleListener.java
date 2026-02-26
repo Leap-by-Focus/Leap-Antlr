@@ -47,15 +47,35 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitFunctionCall(SimpleParser.FunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link SimpleParser#method_type}.
+	 * Enter a parse tree produced by {@link SimpleParser#methodCall}.
 	 * @param ctx the parse tree
 	 */
-	void enterMethod_type(SimpleParser.Method_typeContext ctx);
+	void enterMethodCall(SimpleParser.MethodCallContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link SimpleParser#method_type}.
+	 * Exit a parse tree produced by {@link SimpleParser#methodCall}.
 	 * @param ctx the parse tree
 	 */
-	void exitMethod_type(SimpleParser.Method_typeContext ctx);
+	void exitMethodCall(SimpleParser.MethodCallContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#methodType}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodType(SimpleParser.MethodTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#methodType}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodType(SimpleParser.MethodTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#argumentList}.
+	 * @param ctx the parse tree
+	 */
+	void enterArgumentList(SimpleParser.ArgumentListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#argumentList}.
+	 * @param ctx the parse tree
+	 */
+	void exitArgumentList(SimpleParser.ArgumentListContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ParenthesizedExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
@@ -117,6 +137,18 @@ public interface SimpleListener extends ParseTreeListener {
 	 */
 	void exitObjectCreationExpression(SimpleParser.ObjectCreationExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code CallMethodExpression}
+	 * labeled alternative in {@link SimpleParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterCallMethodExpression(SimpleParser.CallMethodExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code CallMethodExpression}
+	 * labeled alternative in {@link SimpleParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitCallMethodExpression(SimpleParser.CallMethodExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ConstantExpression}
 	 * labeled alternative in {@link SimpleParser#expression}.
 	 * @param ctx the parse tree
@@ -162,6 +194,16 @@ public interface SimpleListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpressionList(SimpleParser.ExpressionListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SimpleParser#methodCallExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterMethodCallExpression(SimpleParser.MethodCallExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SimpleParser#methodCallExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitMethodCallExpression(SimpleParser.MethodCallExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SimpleParser#addOp}.
 	 * @param ctx the parse tree

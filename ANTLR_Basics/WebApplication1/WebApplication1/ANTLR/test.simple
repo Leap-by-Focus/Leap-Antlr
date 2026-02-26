@@ -1,12 +1,12 @@
-namen = new List();
-namen.add("Max");
-namen.add("Moritz");
+fehlerTest = new List();
+fehlerTest.add("Nur ein Element");
 
-// Zugriff über Index
-erster = namen.getByIndex(0); 
-print(erster); // Ausgabe: Max
+// Dies sollte (je nach deiner Java-Logik) eine Warnung oder Fehler werfen
+// print(fehlerTest.getByIndex(10)); 
 
-// Vergleich zu getBy (Universal)
+// Prüfe Überschreiben im Dictionary
 alter = new Dictionary();
-alter.put("Max", 15);
-print(alter.getBy("Max")); // Ausgabe: 15
+alter.put("Max", 20);
+alter.put("Max", 25); // Überschreibt 20
+print("Max Alter (sollte 25 sein):");
+print(alter.getBy("Max"));

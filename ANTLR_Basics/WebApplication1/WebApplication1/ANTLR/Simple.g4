@@ -15,6 +15,7 @@ program
 statement
     : assignment ';'
     | functionCall ';'
+    | methodCall
     ;
 
 // Variablenzuweisung
@@ -34,9 +35,16 @@ COLLECTION_TYPE
     ;
 
 //Methoden für Collections -> add,put,remove,delete,sort,getAll,getBy,getByIndex
+methodCall
+    : IDENTIFIER '.' methodType '(' argumentList? ')' ';'
+    ;
 
-method_type
+methodType
     : 'add' | 'put' | 'remove' | 'delete' | 'sort' | 'getAll' | 'getBy' | 'getByIndex' | 'sort'
+    ;
+
+argumentList
+    : expression (',' expression)*
     ;
 
 // Expressions
@@ -50,10 +58,15 @@ expression
     | 'new' IDENTIFIER '(' ')'                      #ObjectCreationExpression
     | lengthAccessExpr                              #LengthAccessExpression 
     | 'new' COLLECTION_TYPE '(' expressionList? ')' #ObjectCreationExpression
+    | methodCallExpression                          #CallMethodExpression       
     ;
 
 expressionList
     : expression (',' expression)*
+    ;
+
+methodCallExpression
+    : IDENTIFIER '.' methodType '(' argumentList? ')'
     ;
 
 // addieren und subtrahieren
